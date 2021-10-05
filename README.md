@@ -1,4 +1,4 @@
-# 담다날씨
+# 담다 날씨
 Damda Weather Component
 
 ![HACS][hacs-shield]
@@ -28,9 +28,8 @@ Damda Weather Component
 
 ## 준비물
 
-- HomeAssistant `최신버전`(**2021.3.4 이상**)
+- HomeAssistant `최신버전`(**2021.9.0 이상**)
 - HomeAssistant OS, Core, Container 등 아무런 상관이 없습니다.
-- 무선 `Elfin EW11 혹은 TCP/IP 소켓통신이 되는 제품` 혹은 유선 `USB to RS485 컨버터` 등
 
 <br/>
 
