@@ -1,4 +1,4 @@
-# damda_weather
+# 담다날씨
 Damda Weather Component
 
 ![HACS][hacs-shield]
