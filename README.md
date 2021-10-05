@@ -3,7 +3,8 @@ Damda Weather Component
 
 
 ![HACS][hacs-shield]
-![Version v1.0.0][version-shield]
+
+![Version v1.4][version-shield]
 
 
 문의 : 네이버 [HomeAssistant카페](https://cafe.naver.com/koreassistant)
@@ -90,3 +91,8 @@ Damda Weather Component
 - API key에는 공공데이터포털에서 발급받은 API 키를 입력.
 - Station name에는 에어코리에서 찾은 측정소명을 입력.
 - X value, Y value 에는 첨부된 엑셀파일에서 본인의 위치를 검색
+
+
+
+[version-shield]: https://img.shields.io/badge/version-v1.0.0-orange.svg
+[hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg
