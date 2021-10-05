@@ -62,10 +62,10 @@ Damda Weather Component
 
 - [공공데이터포털](https://www.data.go.kr/) 에서 회원가입
 - API 활용신청하기
--   [기상청_단기예보 조회서비스](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15084084) 활용신청
--   [한국환경공단_에어코리아_대기오염정보](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15073861) 활용신청
+-- [기상청_단기예보 조회서비스](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15084084) 활용신청
+-- [한국환경공단_에어코리아_대기오염정보](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15073861) 활용신청
 - encoded API키 확인
-- API키는 1회원 당 1개로 같은 API키로 여러개의 서비스를 호출 가능합니다.
+-- API키는 1회원 당 1개로 같은 API키로 여러개의 서비스를 호출 가능합니다.
 
 ### 기상청 정보를 찾기 위한 X,Y 격자좌표 찾기
 
