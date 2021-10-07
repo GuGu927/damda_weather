@@ -1045,10 +1045,11 @@ class DamdaWeatherAPI:
             return
 
         state_weather = {W_COND: convKMAcondition(self.weather), W_FCST: []}
-        state_weather_daily = []
+        state_weather_daily = {W_COND: convKMAcondition(self.weather), W_FCST: []}
         for k, v in self.weather.items():
             if k in W_LIST:
                 state_weather[k] = v
+                state_weather_daily[k] = v
             if k == W_FCST_H:
                 for dt, ft in v.items():
                     if len(ft) > 0:
@@ -1058,20 +1059,19 @@ class DamdaWeatherAPI:
                 for dt, ft in v.items():
                     if len(ft) > 0:
                         ft.update({W_DT: dt, W_COND: convKMAcondition(ft)})
-                        state_weather_daily.append(ft)
+                        state_weather_daily[W_FCST].append(ft)
         if len(state_weather[W_FCST]) > 0:
             state_weather[W_FCST] = sorted(
                 state_weather[W_FCST], key=lambda dt: dt[W_DT]
             )
-            state_weather_daily = sorted(
-                state_weather_daily, key=lambda dt: dt[W_DT], reverse=True
+        if len(state_weather_daily[W_FCST]) > 0:
+            state_weather_daily[W_FCST] = sorted(
+                state_weather_daily[W_FCST], key=lambda dt: dt[W_DT]
             )
-            for fcst in state_weather_daily:
-                state_weather[W_FCST].insert(0, fcst)
 
         attr_weather = {CAST_TYPE: "초단기실황"}
-        unique_weather = f"damda_weather{self.count}"
-        name_weather = f"담다날씨 {self.location}"
+        unique_weather = f"damda_weather{self.count}_hourly"
+        name_weather = f"담다날씨 {self.location} 시간"
         self.result[unique_weather] = self.make_entity(
             attr_weather,
             None,
@@ -1082,6 +1082,20 @@ class DamdaWeatherAPI:
             unique_weather,
             unique_weather,
             name_weather,
+        )
+
+        unique_weather2 = f"damda_weather{self.count}"
+        name_weather2 = f"담다날씨 {self.location}"
+        self.result[unique_weather2] = self.make_entity(
+            attr_weather,
+            None,
+            None,
+            WEATHER_DOMAIN,
+            state_weather_daily,
+            None,
+            unique_weather2,
+            unique_weather2,
+            name_weather2,
         )
 
         attr_apt = {CAST_TYPE: "초단기실황"}
