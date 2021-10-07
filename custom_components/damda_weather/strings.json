@@ -1,0 +1,23 @@
+{
+  "title": "Damda Weather",
+  "config": {
+    "step": {
+      "confirm": {
+        "description": "Do you want to start set up?"
+      },
+      "user": {
+        "description": "Write your data.",
+        "data": {
+          "name": "Your entity name.",
+          "api_key": "API key from data.go.kr",
+          "grid_x": "X value from KMA.",
+          "grid_y": "Y value from KMA.",
+          "air_station": "Station name from AirKorea."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Already configured. Only a single configuration possible."
+    }
+  }
+}

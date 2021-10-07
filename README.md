@@ -1,10 +1,9 @@
 # 담다 날씨
-Damda Weather Component
 
+Damda Weather Component
 
 ![HACS][hacs-shield]
 ![Version v1.4][version-shield]
-
 
 문의 : 네이버 [HomeAssistant카페](https://cafe.naver.com/koreassistant)
 
@@ -18,15 +17,13 @@ Damda Weather Component
 
 <a href="https://www.buymeacoffee.com/rangee" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/white_img.png" alt="Buy Me A Coffee"></a>
 
-
 ## 버전 기록정보
 
-| 버전   | 날짜         | 내용      |
-|------|------------|---------|
+| 버전   | 날짜       | 내용 |
+| ------ | ---------- | ---- |
 | v1.0.0 | 2021.10.xx | 게시 |
 
 <br/>
-
 
 ## 준비물
 
@@ -62,10 +59,9 @@ Damda Weather Component
 
 - [공공데이터포털](https://www.data.go.kr/) 에서 회원가입
 - API 활용신청하기
-- [기상청_단기예보 조회서비스](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15084084) 활용신청
-- [한국환경공단_에어코리아_대기오염정보](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15073861) 활용신청
-- encoded API키 확인
-- API키는 1회원 당 1개로 같은 API키로 여러개의 서비스를 호출 가능합니다.
+- [기상청\_단기예보 조회서비스](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15084084) 활용신청
+- [한국환경공단*에어코리아*대기오염정보](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15073861) 활용신청
+- API키 확인(API키는 1회원 당 1개로 같은 API키로 여러개의 서비스를 호출 가능합니다.)
 
 ### 기상청 정보를 찾기 위한 X,Y 격자좌표 찾기
 
@@ -90,8 +86,6 @@ Damda Weather Component
 - API key에는 공공데이터포털에서 발급받은 API 키를 입력.
 - Station name에는 에어코리에서 찾은 측정소명을 입력.
 - X value, Y value 에는 첨부된 엑셀파일에서 본인의 위치를 검색
-
-
 
 [version-shield]: https://img.shields.io/badge/version-v1.0.0-orange.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg

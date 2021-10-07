@@ -1,0 +1,6 @@
+{
+  "name": "[KR] Damda Weather",
+  "country": "KR",
+  "domains": ["sensor", "weather"],
+  "render_readme": true
+}
