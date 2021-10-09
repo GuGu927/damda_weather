@@ -1,5 +1,4 @@
 """API for KMA weather and AirKorea from 'data.go.kr'."""
-
 from math import sqrt
 from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
@@ -567,6 +566,8 @@ class DamdaWeatherAPI:
         unit = dt[13]
         self.weather[W_FCST_H].setdefault(forecast_h_time, {})
         self.weather[W_FCST_D].setdefault(forecast_d_time, {})
+        if entity == W_WS:
+            value = value * 3.6
         try:
             if target == CAST_R and entity in W_LIST:
                 self.weather[entity] = value
@@ -934,7 +935,6 @@ class DamdaWeatherAPI:
                 f"getCastURL > {CAST[cast]} > {valid} > {update_time} / {last_update} / {now.strftime(fmt)}",
             )
             self.try_update[cast] = now.strftime(fmt)
-            # self.last_update[cast] = update_time
             if cast in [CAST_A]:
                 url.append(AIRKOREA_URL.format(self.station, self.api_key))
             elif cast in [CAST_R, CAST_F, CAST_V]:

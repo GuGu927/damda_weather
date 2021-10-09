@@ -24,7 +24,7 @@ def make_unique(i):
     return f"{i[CONF_API]}_{i[CONF_S]}_{i[CONF_X]}_{i[CONF_Y]}"
 
 
-def check_input(i):
+def check_key(i):
     """Check input data is valid and return data."""
     i_key = i[CONF_API].strip()
     k_dec = unquote(i_key)
@@ -43,7 +43,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            user_input = check_input(user_input)
+            user_input = check_key(user_input)
             await self.async_set_unique_id(make_unique(user_input))
             self._abort_if_unique_id_configured()
             return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
