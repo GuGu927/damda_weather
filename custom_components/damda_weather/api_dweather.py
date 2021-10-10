@@ -36,6 +36,8 @@ from .const import (
     CAST_V,
     CAST_VALUE,
     CATEGORY_CODE,
+    CODE_PTY_REV,
+    CODE_SKY_REV,
     CONDITION_MAP,
     CONF_API,
     CONF_S,
@@ -77,6 +79,8 @@ from .const import (
     W_FCST_H,
     W_HUMI,
     W_LIST,
+    W_PCP,
+    W_POP,
     W_PTY,
     W_SKY,
     W_TEMP,
@@ -546,6 +550,8 @@ class DamdaWeatherAPI:
             entity[DEVICE_ICON] = icon
         if device_class is not None:
             entity[DEVICE_CLASS] = device_class
+        if state is None:
+            entity.pop(DEVICE_STATE)
         return entity
 
     def set_weather(self, target, dt):
@@ -566,6 +572,7 @@ class DamdaWeatherAPI:
         unit = dt[13]
         self.weather[W_FCST_H].setdefault(forecast_h_time, {})
         self.weather[W_FCST_D].setdefault(forecast_d_time, {})
+
         if entity == W_WS:
             value = round(value * 3.6, 1)
         try:
@@ -591,25 +598,31 @@ class DamdaWeatherAPI:
                 if forecast_h_dt > now_dt:
                     self.weather[W_FCST_H][forecast_h_time].update({entity: value})
             elif target == CAST_V:
-                d_data = self.weather[W_FCST_D][forecast_d_time]
+                d_data = self.weather[W_FCST_D][forecast_d_time].copy()
                 if code in ["TMN", "TMX"]:
                     entity = "temperature"
                 if entity == "temperature":
-                    sv = d_data.get("temperature", value)
-                    lv = d_data.get("templow", value)
-                    if sv is not None and lv is not None:
-                        if value >= sv:
-                            self.weather[W_FCST_D][forecast_d_time].update(
-                                {"temperature": value}
-                            )
-                        if value <= lv:
-                            self.weather[W_FCST_D][forecast_d_time].update(
-                                {"templow": value}
-                            )
+                    max_v = d_data.get("temperature", None)
+                    min_v = d_data.get("templow", None)
+                    if max_v is None or (max_v is not None and value > max_v):
+                        self.weather[W_FCST_D][forecast_d_time]["temperature"] = value
+                    if min_v is None or (min_v is not None and value < min_v):
+                        self.weather[W_FCST_D][forecast_d_time]["templow"] = value
                 elif entity in ["precipitation", "snow"]:
-                    entity = "precipitation"
+                    entity = W_PCP
                     ov = d_data.get(entity, 0)
                     self.weather[W_FCST_D][forecast_d_time][entity] = ov + value
+                elif entity == W_POP:
+                    ov = d_data.get(entity, 0)
+                    if value >= ov:
+                        self.weather[W_FCST_D][forecast_d_time][entity] = value
+                elif entity in [W_SKY, W_PTY]:
+                    default = "맑음" if entity == W_SKY else "없음"
+                    code = CODE_SKY_REV if entity == W_SKY else CODE_PTY_REV
+                    ovalue_code = int(code.get(d_data.get(entity, default), 0))
+                    value_code = int(code.get(value, 0))
+                    if value_code >= ovalue_code:
+                        self.weather[W_FCST_D][forecast_d_time][entity] = value
                 else:
                     self.weather[W_FCST_D][forecast_d_time].update({entity: value})
                 if (
@@ -759,9 +772,6 @@ class DamdaWeatherAPI:
         r_total = 0
         try:
             if ERROR_CODE.get(r_code, None) is None:
-                if target == CAST_V:
-                    self.weather[W_FCST_D] = {}
-                    self.weather[W_FCST_H] = {}
                 r_body = r_res.get("body", {})
                 r_item = r_body.get("items", {}).get("item", [])
                 r_total = r_body.get("totalCount", 0)
@@ -794,10 +804,12 @@ class DamdaWeatherAPI:
                     cast_time_hour = cast_time[0:2]
                     dif_date = 0
                     base_dt, cast_dt = base_date + base_time, cast_date + cast_time
-                    dt = datetime.strptime(base_dt, "%Y%m%d%H%M")
+                    dt = datetime.strptime(base_dt, "%Y%m%d%H%M").replace(tzinfo=ZONE)
                     self.last_update[target] = dt.strftime("%Y-%m-%d %H:%M")
                     now_dt = datetime.now(timezone.utc).astimezone(ZONE)
                     now = now_dt.strftime("%Y%m%d")
+                    if dt.replace(hour=0, minute=0) < now_dt.replace(hour=0, minute=0):
+                        base_date = now
                     header = f"dw{self.count}_{CAST_EN[target]}"
                     tail = f" 현재 {cast_time_hour}시"
                     unique = f"{self.station}_{self.grid_x}_{self.grid_y}_{entity}"
@@ -977,6 +989,9 @@ class DamdaWeatherAPI:
         try:
             for target_name in target_list:
                 cast_url = self.getCastURL(target_name)
+                if target_name == CAST_V and len(cast_url) > 0:
+                    self.weather[W_FCST_D] = {}
+                    self.weather[W_FCST_H] = {}
                 for url in cast_url:
                     response = await self.hass.async_add_executor_job(requests.get, url)
                     try:

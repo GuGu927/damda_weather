@@ -129,6 +129,7 @@ CONDITION_MAP = {
 }
 
 CODE_SKY = {"1": "맑음", "3": "구름많음", "4": "흐림"}
+CODE_SKY_REV = {value: key for key, value in CODE_SKY.items()}
 ICON_SKY = {
     "1": "mdi:weather-sunny",
     "3": "mdi:weather-partly-cloudy",
@@ -144,6 +145,7 @@ CODE_PTY = {
     "6": "빗방울눈날림",
     "7": "눈날림",
 }
+CODE_PTY_REV = {value: key for key, value in CODE_PTY.items()}
 ICON_PTY = {
     "0": "mdi:close-circle",
     "1": "mdi:weather-rainy",
