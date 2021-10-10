@@ -637,7 +637,6 @@ class DamdaWeatherAPI:
                         forecast_h_dt > now_dt
                         and forecast_h_dt - now_dt <= timedelta(seconds=3600 * 8)
                     )
-                    or (forecast_h_dt <= now_dt)
                 ):
                     h_data = self.weather[W_FCST_H][forecast_h_time]
                     if entity in ["precipitation", "snow"]:
