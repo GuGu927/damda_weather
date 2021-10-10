@@ -567,7 +567,7 @@ class DamdaWeatherAPI:
         self.weather[W_FCST_H].setdefault(forecast_h_time, {})
         self.weather[W_FCST_D].setdefault(forecast_d_time, {})
         if entity == W_WS:
-            value = value * 3.6
+            value = round(value * 3.6, 1)
         try:
             if target == CAST_R and entity in W_LIST:
                 self.weather[entity] = value
@@ -820,7 +820,11 @@ class DamdaWeatherAPI:
                             dif_date2 -= 1
                             cast_time_hour = "24"
                         if (
-                            (dif_date == 0 and int(cast_time_hour) < 24)
+                            (
+                                dif_date == 0
+                                and int(cast_time_hour) < 24
+                                and code not in ["TMX", "TMN"]
+                            )
                             or int(cast_time_hour) % 3 > 0
                             or (dif_date == 4 and int(cast_time_hour) > 0)
                             or dif_date > 4
