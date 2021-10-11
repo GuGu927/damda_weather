@@ -609,8 +609,7 @@ class DamdaWeatherAPI:
                     if min_v is None or (min_v is not None and value < min_v):
                         self.weather[W_FCST_D][forecast_d_time]["templow"] = value
                 elif entity in ["precipitation", "snow"]:
-                    entity = W_PCP
-                    ov = d_data.get(entity, 0)
+                    ov = d_data.get(entity, 0) if int(cast_time_hour) > 0 else 0
                     self.weather[W_FCST_D][forecast_d_time][entity] = ov + value
                 elif entity == W_POP:
                     ov = d_data.get(entity, 0)
@@ -638,13 +637,7 @@ class DamdaWeatherAPI:
                         and forecast_h_dt - now_dt <= timedelta(seconds=3600 * 8)
                     )
                 ):
-                    h_data = self.weather[W_FCST_H][forecast_h_time]
-                    if entity in ["precipitation", "snow"]:
-                        entity = "precipitation"
-                        ov = h_data.get(entity, 0)
-                        self.weather[W_FCST_H][forecast_h_time][entity] = ov + value
-                    else:
-                        self.weather[W_FCST_H][forecast_h_time].update({entity: value})
+                    self.weather[W_FCST_H][forecast_h_time].update({entity: value})
         except Exception as ex:
             self.log(3, f"Error at set_weather > {ex}")
 
@@ -1072,11 +1065,13 @@ class DamdaWeatherAPI:
                 for dt, ft in v.items():
                     if len(ft) > 0:
                         ft.update({W_DT: dt, W_COND: convKMAcondition(ft)})
+                        ft.update({W_PCP: ft.get(W_PCP, 0) + ft.get("snow", 0)})
                         state_weather[W_FCST].append(ft)
             elif k == W_FCST_D:
                 for dt, ft in v.items():
                     if len(ft) > 0:
                         ft.update({W_DT: dt, W_COND: convKMAcondition(ft)})
+                        ft.update({W_PCP: ft.get(W_PCP, 0) + ft.get("snow", 0)})
                         state_weather_daily[W_FCST].append(ft)
         if len(state_weather[W_FCST]) > 0:
             state_weather[W_FCST] = sorted(
