@@ -21,7 +21,7 @@ from homeassistant.const import (
 )
 
 
-VERSION = "1.2.3"
+VERSION = "1.2.2"
 BRAND = "Damda"
 NAME = "Damda Weather"
 DOMAIN = "damda_weather"
