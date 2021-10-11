@@ -618,21 +618,6 @@ class DamdaWeatherAPI:
                             else 0
                         )
                     )
-                    if (
-                        ("-10-11" in forecast_d_time or "-10-12" in forecast_d_time)
-                        and entity != "snow"
-                        and value > 0
-                    ):
-                        print(
-                            forecast_d_time,
-                            ov,
-                            value,
-                            ov + value,
-                            "\t",
-                            int(cast_time_hour),
-                            (int(cast_time_hour) == 0 or int(cast_time_hour) == 24),
-                            entity_id,
-                        )
                     self.weather[W_FCST_D][forecast_d_time][entity] = ov + value
                 elif entity == W_POP:
                     ov = d_data.get(entity, 0)
