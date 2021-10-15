@@ -1,5 +1,6 @@
 """Device class."""
-from homeassistant.helpers.entity import Entity
+# from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.core import callback
 
 from .const import (
@@ -40,6 +41,7 @@ class DWeatherBase:
         self.api = api
         self.register = self._device[DEVICE_REG]
         self.device_available = True
+        self._last_state = None
 
     @property
     def unique_id(self) -> str:
@@ -74,8 +76,8 @@ class DWeatherBase:
         }
 
 
-class DWeatherDevice(DWeatherBase, Entity):
-    """Defines a Pad Device entity."""
+class DWeatherDevice(DWeatherBase, RestoreEntity):
+    """Defines a DWeather Device entity."""
 
     TYPE = ""
 
@@ -92,6 +94,11 @@ class DWeatherDevice(DWeatherBase, Entity):
     async def async_added_to_hass(self):
         """Subscribe to device events."""
         self.register(self.unique_id, self.update_from_api)
+        last = await self.async_get_last_state()
+        try:
+            self._last_state = last.state
+        except Exception:
+            pass
         self.async_write_ha_state()
 
     async def async_will_remove_from_hass(self) -> None:
@@ -113,7 +120,7 @@ class DWeatherDevice(DWeatherBase, Entity):
     @property
     def available(self):
         """Return True if device is available."""
-        if self.device_available is not True:
+        if self.device_available is not True and self._last_state is None:
             return False
         return True
 

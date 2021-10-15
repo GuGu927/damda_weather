@@ -68,6 +68,8 @@ class DWeatherSensor(DWeatherDevice):
     @property
     def state(self):
         """Return the state of the sensor."""
+        if self.device_available is not True and self._last_state is not None:
+            return self._last_state
         return self.api.get_state(self.unique_id)
 
     @property

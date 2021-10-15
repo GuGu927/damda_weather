@@ -3,6 +3,7 @@ from __future__ import annotations
 from urllib.parse import quote_plus, unquote
 from homeassistant.const import CONF_NAME
 import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
 
 from homeassistant import config_entries
 
@@ -13,8 +14,8 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
         vol.Required(CONF_NAME): str,
         vol.Required(CONF_API): str,
         vol.Required(CONF_S): str,
-        vol.Required(CONF_X): vol.Coerce(int),
-        vol.Required(CONF_Y): vol.Coerce(int),
+        vol.Required(CONF_X): cv.positive_int,
+        vol.Required(CONF_Y): cv.positive_int,
     }
 )
 

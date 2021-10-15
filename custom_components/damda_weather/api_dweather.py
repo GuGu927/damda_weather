@@ -1,6 +1,6 @@
 """API for KMA weather and AirKorea from 'data.go.kr'."""
 from math import sqrt
-from homeassistant.const import CONF_NAME
+from homeassistant.const import CONF_NAME, DEVICE_CLASS_TIMESTAMP
 from homeassistant.core import callback
 
 from homeassistant.helpers.dispatcher import (
@@ -24,13 +24,11 @@ from .const import (
     CAST,
     CAST_A,
     CAST_BDATE,
-    CAST_BTIME,
     CAST_CODE,
     CAST_DTIME,
     CAST_EN,
     CAST_F,
     CAST_FDATE,
-    CAST_FTIME,
     CAST_R,
     CAST_TYPE,
     CAST_V,
@@ -65,8 +63,10 @@ from .const import (
     ITEM_FVALUE,
     ITEM_OVALUE,
     KMA_URL,
+    MANUFACTURER,
     MODEL,
     NAME,
+    NAME_KOR,
     NEW_SENSOR,
     NEW_WEATHER,
     SIGNAL_REV,
@@ -286,7 +286,14 @@ def convKMAitems(target, c, code, value, unit, device_icon):
         log(3, f"[{target}] Parse unit error > {ex} > {unit} > {c}")
     try:
         if isnumber(value):
-            value = float(value)
+            value = (
+                int(float(value))
+                if (
+                    code in ["REH", "POP", "TMP", "TMN", "TMX"]
+                    or (target == CAST_F and code in ["T1H"])
+                )
+                else float(value)
+            )
             if isfloat(value) and float(value) < -900:
                 value = None
         elif isinstance(value, str):
@@ -370,8 +377,8 @@ class DamdaWeatherAPI:
 
     @property
     def manufacturer(self) -> str:
-        """Return the registered pad."""
-        return "data.go.kr"
+        """Get manufacturer."""
+        return MANUFACTURER
 
     @property
     def version(self) -> str:
@@ -386,7 +393,7 @@ class DamdaWeatherAPI:
     @property
     def name(self) -> str:
         """Get name."""
-        return "담다날씨"
+        return NAME_KOR
 
     @property
     def model(self) -> str:
@@ -688,12 +695,21 @@ class DamdaWeatherAPI:
                         device_icon = vlist[4]
                         device_class = vlist[5]
                         value = getAirItem(r_item, vname)
+                        dtfmt = "%Y-%m-%d %H:%M"
                         data_time = getAirItem(r_item, "dataTime", "-")
+                        if "24:00" in data_time:
+                            data_time = (
+                                datetime.strptime(data_time[0:10] + " 00:00", dtfmt)
+                                + timedelta(days=1)
+                            ).strftime(dtfmt)
+                        data_time = datetime.strptime(data_time, dtfmt).replace(
+                            tzinfo=ZONE
+                        )
                         if data_time != "-":
-                            self.last_update[target] = data_time
+                            self.last_update[target] = data_time.isoformat()
                         attr = {
                             CAST_TYPE: CAST[target],
-                            CAST_DTIME: data_time,
+                            CAST_DTIME: data_time.strftime(dtfmt),
                             CAST_VALUE: value,
                         }
                         try:
@@ -729,7 +745,7 @@ class DamdaWeatherAPI:
                                 3,
                                 f"[{target}] Parse value error > {ex} > {value} > {c}",
                             )
-                        if entity == "khai_value":
+                        if entity in ["khai_value", "pm10_value", "pm25_value"]:
                             value = int(value) if value != "-" else "-"
                         unique_id = f"dw{self.count}_airkorea_{self.station}_{self.grid_x}_{self.grid_y}_{entity}"
                         entity_id = f"dw{self.count}_airkorea_{entity}"
@@ -805,7 +821,7 @@ class DamdaWeatherAPI:
                     dif_date = 0
                     base_dt, cast_dt = base_date + base_time, cast_date + cast_time
                     dt = datetime.strptime(base_dt, "%Y%m%d%H%M").replace(tzinfo=ZONE)
-                    self.last_update[target] = dt.strftime("%Y-%m-%d %H:%M")
+                    self.last_update[target] = dt.isoformat()
                     now_dt = datetime.now(timezone.utc).astimezone(ZONE)
                     now = now_dt.strftime("%Y%m%d")
                     if dt.replace(hour=0, minute=0) < now_dt.replace(hour=0, minute=0):
@@ -857,12 +873,15 @@ class DamdaWeatherAPI:
                     )
                     if not do_not_add:
                         data.setdefault(unique_id, {})
+                        dtfmt = "%Y-%m-%d %H:%M"
                         attr = {
                             CAST_TYPE: CAST[target],
-                            CAST_BDATE: base_date,
-                            CAST_BTIME: base_time,
-                            CAST_FDATE: cast_date,
-                            CAST_FTIME: cast_time,
+                            CAST_BDATE: datetime.strptime(
+                                base_dt, "%Y%m%d%H%M"
+                            ).strftime(dtfmt),
+                            CAST_FDATE: datetime.strptime(
+                                cast_dt, "%Y%m%d%H%M"
+                            ).strftime(dtfmt),
                             CAST_CODE: code,
                             CAST_VALUE: o_value,
                         }
@@ -933,23 +952,25 @@ class DamdaWeatherAPI:
         if not isinstance(last_update, str):
             last_update = init_time
         last_try = self.try_update.get(cast, init_time)
-        if last_update and "24:00" in last_update:
-            last_update = (
-                datetime.strptime(last_update[0:10] + " 00:00", fmt) + timedelta(days=1)
-            ).strftime(fmt)
 
         dt_update = datetime.strptime(update_time, fmt).replace(tzinfo=ZONE)
-        dt_last = datetime.strptime(last_update, fmt).replace(tzinfo=ZONE)
+        dt_last = datetime.fromisoformat(last_update).replace(tzinfo=ZONE)
         dt_try = datetime.strptime(last_try, fmt).replace(tzinfo=ZONE)
         if init_time == dt_last.strftime(fmt) or dt_update > dt_last:
             valid = True
         if cast in [CAST_R, CAST_F] and now - dt_try > timedelta(minutes=10):
             valid = True
         if valid:
-            self.log(
-                1,
-                f"getCastURL > {CAST[cast]} > {valid} > {update_time} / {last_update} / {now.strftime(fmt)}",
-            )
+            if init_time != dt_last.strftime(fmt):
+                self.log(
+                    1,
+                    f"getCastURL > {CAST[cast]} > {valid} > target:{update_time} / before:{dt_last.strftime(fmt)} / now:{now.strftime(fmt)}",
+                )
+            else:
+                self.log(
+                    1,
+                    f"getCastURL > {CAST[cast]} > {valid} > target:{update_time} / now:{now.strftime(fmt)}",
+                )
             self.try_update[cast] = now.strftime(fmt)
             if cast in [CAST_A]:
                 url.append(AIRKOREA_URL.format(self.station, self.api_key))
@@ -1050,8 +1071,8 @@ class DamdaWeatherAPI:
                 update_time_attr["error_url"] = update_time[2]
             self.result[unique_id] = self.make_entity(
                 update_time_attr,
-                None,
-                None,
+                "mdi:clock-outline",
+                DEVICE_CLASS_TIMESTAMP,
                 SENSOR_DOMAIN,
                 update_time,
                 None,
