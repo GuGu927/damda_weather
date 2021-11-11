@@ -1,5 +1,4 @@
 """Device class."""
-# from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.core import callback
 
@@ -91,7 +90,7 @@ class DWeatherDevice(DWeatherBase, RestoreEntity):
         """entity_registry_enabled_default."""
         return True
 
-    async def async_added_to_hass(self):
+    async def async_internal_added_to_hass(self):
         """Subscribe to device events."""
         self.register(self.unique_id, self.update_from_api)
         last = await self.async_get_last_state()
@@ -101,7 +100,7 @@ class DWeatherDevice(DWeatherBase, RestoreEntity):
             pass
         self.async_write_ha_state()
 
-    async def async_will_remove_from_hass(self) -> None:
+    async def asyn_internalc_will_remove_from_hass(self) -> None:
         """Disconnect device object when removed."""
         self.api.set_entity(self.TYPE, self.unique_id, False)
         self.register(self.unique_id)

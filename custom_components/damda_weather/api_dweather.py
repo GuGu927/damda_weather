@@ -273,6 +273,7 @@ def convKMAitems(target, c, code, value, unit, device_icon):
         "없음",
         "강수없음",
         "1mm 미만",
+        "1.0mm 미만",
         "적설없음",
     ]:
         value = "0"
@@ -452,7 +453,8 @@ class DamdaWeatherAPI:
         }
         if domain in self.entities:
             self.entities[domain].setdefault(unique_id, False)
-        self.log(0, f"Initialize device > {domain} > {unique_id}")
+        if unique_id not in self.device:
+            self.log(0, f"Initialize device > {domain} > {unique_id}")
         return self.device.setdefault(unique_id, init_info)
 
     def search_device(self, unique_id):
@@ -654,7 +656,7 @@ class DamdaWeatherAPI:
                 ):
                     self.weather[W_FCST_H][forecast_h_time].update({entity: value})
         except Exception as ex:
-            self.log(3, f"Error at set_weather > {ex}")
+            self.log(3, f"Error at set_weather > {ex} > {target} > {dt}")
 
     def parse(self, url, result):
         """Parse result as url."""
@@ -1181,7 +1183,7 @@ class DamdaWeatherAPI:
         for unique_id, entity in self.result.items():
             target_domain = entity.get(DEVICE_DOMAIN)
             if not target_domain:
-                self.log(1, f"Device domain does not exist > {unique_id} > {entity}")
+                self.log(0, f"Device domain does not exist > {unique_id} > {entity}")
                 continue
             self.init_device(unique_id, target_domain, entity)
             self.update_entity(unique_id, entity)

@@ -140,7 +140,7 @@ class DWeatherMain(DWeatherDevice, WeatherEntity):
     @property
     def should_poll(self) -> bool:
         """No polling needed for this device."""
-        return True
+        return "hourly" in self.unique_id
 
     async def async_update(self):
         """Update current conditions."""
