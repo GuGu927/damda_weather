@@ -9,7 +9,7 @@ Damda Weather Component
 
 ## 담다 날씨가 도움이 되셨나요?
 
-<a href="https://qr.kakaopay.com/281006011000098177846177" target="_blank"><img src="https://github.com/GuGu927/DAM-Pad/blob/main/images/kakao.png" alt="KaKao"></a>
+<a href="https://qr.kakaopay.com/281006011000098177846177" target="_blank"><img src="https://github.com/GuGu927/damda_pad/blob/main/images/kakao.png" alt="KaKao"></a>
 
 카카오페이 : https://qr.kakaopay.com/281006011000098177846177
 
@@ -29,7 +29,7 @@ Damda Weather Component
 | v1.2.2 | 2021.10.10 | weather 시간별 표시항목 수정                                                                                     |
 | v1.2.3 | 2021.10.11 | weather 시간별, 일별 강수량 수정                                                                                 |
 | v1.2.4 | 2021.10.15 | 업데이트시간 센서의 device class 지정<br>센서 표시단위 수정<br>재부팅 후 값 표시되게끔 개선<br>기타 버그 수정 등 |
-| v1.2.5 | 2021.xx.xx | 업데이트 시도 관련 버그 수정<br> 재부팅 후 값 표기관련 버그 수정<br>API변경에 따른 대응<br>기타 버그 수정 등     |
+| v1.2.5 | 2021.11.11 | 업데이트 시도 관련 버그 수정<br> 재부팅 후 값 표기관련 버그 수정<br>API변경에 따른 대응<br>기타 버그 수정 등     |
 
 <br/>
 
@@ -54,7 +54,7 @@ Damda Weather Component
 
 ### 수동설치
 
-- `담다 자료실`게시판에서 `custom_components` 파일을 다운로드, 내부의 `damda_weather` 폴더 확인
+- `https://github.com/GuGu927/damda_waether` 페이지에서 `Code/Download ZIP` 을 눌러 파일을 다운로드, 내부의 `damda_weather` 폴더 확인
 - HomeAssistant 설정폴더인 `/config` 내부에 `custom_components` 폴더를 생성(이미 있으면 다음 단계)<br/>설정폴더는 `configuration.yaml` 파일이 있는 폴더를 의미합니다.<br>
 - `/config/custom_components`에 위에서 다운받은 `damda_weather` 폴더를 넣기<br>
 - HomeAssistant 재시작
@@ -95,5 +95,5 @@ Damda Weather Component
 - Station name에는 에어코리에서 찾은 측정소명을 입력.
 - X value, Y value 에는 첨부된 엑셀파일에서 본인의 위치를 검색
 
-[version-shield]: https://img.shields.io/badge/version-v1.0.0-orange.svg
+[version-shield]: https://img.shields.io/badge/version-v1.2.5-orange.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg
