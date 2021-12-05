@@ -19,17 +19,18 @@ Damda Weather Component
 
 ## 버전 기록정보
 
-| 버전   | 날짜       | 내용                                                                                                             |
-| ------ | ---------- | ---------------------------------------------------------------------------------------------------------------- |
-| v1.0.0 | 2021.10.07 | 게시                                                                                                             |
-| v1.1.0 | 2021.10.08 | 일/시간별 weather 로 분리                                                                                        |
-| v1.1.1 | 2021.10.09 | weather 풍속 단위에 대응(m/s에서 km/h로 적용)                                                                    |
-| v1.2.0 | 2021.10.10 | 풍속 반올림 표기<br>오늘 최저/최고기온 추가                                                                      |
-| v1.2.1 | 2021.10.10 | weather 일별 강수확률,강수량,날씨상태 수정<br>weather 최저/최고기온 관련 오류 수정                               |
-| v1.2.2 | 2021.10.10 | weather 시간별 표시항목 수정                                                                                     |
-| v1.2.3 | 2021.10.11 | weather 시간별, 일별 강수량 수정                                                                                 |
-| v1.2.4 | 2021.10.15 | 업데이트시간 센서의 device class 지정<br>센서 표시단위 수정<br>재부팅 후 값 표시되게끔 개선<br>기타 버그 수정 등 |
-| v1.2.5 | 2021.11.11 | 업데이트 시도 관련 버그 수정<br> 재부팅 후 값 표기관련 버그 수정<br>API변경에 따른 대응<br>기타 버그 수정 등     |
+| 버전   | 날짜       | 내용                                                                                                                                    |
+| ------ | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| v1.0.0 | 2021.10.07 | 게시                                                                                                                                    |
+| v1.1.0 | 2021.10.08 | 일/시간별 weather 로 분리                                                                                                               |
+| v1.1.1 | 2021.10.09 | weather 풍속 단위에 대응(m/s에서 km/h로 적용)                                                                                           |
+| v1.2.0 | 2021.10.10 | 풍속 반올림 표기<br>오늘 최저/최고기온 추가                                                                                             |
+| v1.2.1 | 2021.10.10 | weather 일별 강수확률,강수량,날씨상태 수정<br>weather 최저/최고기온 관련 오류 수정                                                      |
+| v1.2.2 | 2021.10.10 | weather 시간별 표시항목 수정                                                                                                            |
+| v1.2.3 | 2021.10.11 | weather 시간별, 일별 강수량 수정                                                                                                        |
+| v1.2.4 | 2021.10.15 | 업데이트시간 센서의 device class 지정<br>센서 표시단위 수정<br>재부팅 후 값 표시되게끔 개선<br>기타 버그 수정                           |
+| v1.2.5 | 2021.11.11 | 업데이트 시도 관련 버그 수정<br> 재부팅 후 값 표기관련 버그 수정<br>API변경에 따른 대응<br>기타 버그 수정                               |
+| v1.2.6 | 2021.12.05 | HA시작 속도에 영향을 주지 않도록 수정<br>중기예보 추가`(설정법은 아래를 참고하세요.)`<br>옵션:업데이트 시간 기록 추가<br>기타 버그 수정 |
 
 <br/>
 
@@ -68,14 +69,21 @@ Damda Weather Component
 - [공공데이터포털](https://www.data.go.kr/) 에서 회원가입
 - API 활용신청하기
 - [기상청\_단기예보 조회서비스](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15084084) 활용신청
+- [기상청\_중기예보 조회서비스](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15059468) 활용신청
 - [한국환경공단*에어코리아*대기오염정보](https://www.data.go.kr/tcs/dss/selectApiDataDetailView.do?publicDataPk=15073861) 활용신청
 - API키 확인(API키는 1회원 당 1개로 같은 API키로 여러개의 서비스를 호출 가능합니다.)
 
-### 기상청 정보를 찾기 위한 X,Y 격자좌표 찾기
+### 기상청 단기예보를 불러오기 위한 X,Y 격자좌표 찾기
 
 - 기상청 단기예보 조회서비스 페이지에서 참고문서 `기상청41_단기예보 조회서비스_오픈API활용가이드_최종.zip` 를 다운로드
 - 다운로드 받은 파일의 압축을 풀고 `기상청41_단기예보 조회서비스_오픈API활용가이드_격자_위경도(20210401).xlsx` 파일을 열기
 - 본인의 위치를 찾고 X,Y 격자좌표 기억하기
+
+### 기상청 중기예보를 불러오기 위한 예보지점 코드 찾기
+
+- 기상청 단기예보 조회서비스 페이지에서 참고문서 `기상청20_중기예보 조회서비스_오픈API활용가이드.zip` 를 다운로드
+- 다운로드 받은 파일의 압축을 풀고 `기상청20_중기예보 조회서비스_오픈API활용가이드_지점코드.xlsx` 파일을 열기
+- 본인의 위치를 찾고 코드 기억하기
 
 ### 에어코리아에서 대기오염정보 측정소명 찾기
 
@@ -93,7 +101,38 @@ Damda Weather Component
 - Weather name 에는 보여지는 구성요소의 이름을 입력. ex)우리집<br>
 - API key에는 공공데이터포털에서 발급받은 API 키를 입력.
 - Station name에는 에어코리에서 찾은 측정소명을 입력.
-- X value, Y value 에는 첨부된 엑셀파일에서 본인의 위치를 검색
+- X value, Y value 에는 첨부된 엑셀파일`(기상청41_단기예보.xlsx)`에서 본인의 위치를 검색하여 입력.
+- 중기예보 지역코드 에는 첨부된 엑셀파일`(기상청20_중기예보.xlsx)`에서 본인의 위치를 검색하여 입력.
+- 중기예보를 원하지 않을 경우 공백으로 놔두면 됩니다.
 
-[version-shield]: https://img.shields.io/badge/version-v1.2.5-orange.svg
+<br/>
+
+## 담다날씨를 lovelace에 추가하는 예제
+
+### weather_card를 수정한 weather_gu 를 사용
+
+![manual_sidebar](https://github.com/GuGu927/damda_weather/blob/main/images/weather_gu.png)
+
+- [WeatherGu](https://cafe.naver.com/koreassistant/6611) 러브레이스 카드를 다운로드 및 설치해야합니다.
+
+```yaml
+type: custom:vertical-stack-in-card
+cards:
+  - type: custom:weather-gu
+    entity: weather.damda_weather1_hourly
+    current: true
+    details: true
+    hourly_forecast: true
+    forecast: true
+    number_of_forecasts: "8"
+  - type: custom:weather-gu
+    entity: weather.damda_weather1
+    hourly_forecast: false
+    forecast: true
+    details: false
+    current: false
+    number_of_forecasts: "8"
+```
+
+[version-shield]: https://img.shields.io/badge/version-v1.2.6-orange.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg

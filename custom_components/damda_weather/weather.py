@@ -6,9 +6,7 @@ from homeassistant.components.weather import WeatherEntity
 from .const import (
     WEATHER_DOMAIN,
     DEVICE_UNIQUE,
-    DOMAIN,
     NAME,
-    NEW_WEATHER,
     TEMP_CELSIUS,
     W_COND,
     W_FCST,
@@ -41,7 +39,6 @@ def log(flag, val):
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up Weather for Damda Weather component."""
-    TARGET_DOMAIN = NEW_WEATHER
 
     @callback
     def async_add_entity(devices=[]):
@@ -57,7 +54,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             for device in devices:
                 if DEVICE_UNIQUE not in device:
                     continue
-                if not api.search_entity(DOMAIN, device[DEVICE_UNIQUE]):
+                if not api.search_entity(WEATHER_DOMAIN, device[DEVICE_UNIQUE]):
                     entities.append(DWeatherMain(device, api))
 
         if entities:
@@ -65,7 +62,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     api = get_api(hass, config_entry)
     if api:
-        api.load(TARGET_DOMAIN, async_add_entity)
+        api.load(WEATHER_DOMAIN, async_add_entity)
 
     async_add_entity()
 
@@ -139,9 +136,9 @@ class DWeatherMain(DWeatherDevice, WeatherEntity):
 
     @property
     def should_poll(self) -> bool:
-        """No polling needed for this device."""
+        """Verify poll."""
         return "hourly" in self.unique_id
 
     async def async_update(self):
         """Update current conditions."""
-        await self.api.update()
+        await self.api.update(True)

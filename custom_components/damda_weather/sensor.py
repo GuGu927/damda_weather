@@ -1,14 +1,13 @@
 """Damda Weather's sensor entity."""
-from homeassistant.components.sensor import DOMAIN
 from homeassistant.core import callback
 
 from .const import (
+    SENSOR_DOMAIN,
     DEVICE_CLASS,
     DEVICE_ICON,
     DEVICE_UNIQUE,
     DEVICE_UNIT,
     NAME,
-    NEW_SENSOR,
 )
 from .dweather_device import DWeatherDevice
 from .api_dweather import get_api
@@ -31,7 +30,6 @@ def log(flag, val):
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up sensor for Damda Waether component."""
-    TARGET_DOMAIN = NEW_SENSOR
 
     @callback
     def async_add_entity(devices=[]):
@@ -47,7 +45,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             for device in devices:
                 if DEVICE_UNIQUE not in device:
                     continue
-                if not api.search_entity(DOMAIN, device[DEVICE_UNIQUE]):
+                if not api.search_entity(SENSOR_DOMAIN, device[DEVICE_UNIQUE]):
                     entities.append(DWeatherSensor(device, api))
 
         if entities:
@@ -55,7 +53,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     api = get_api(hass, config_entry)
     if api:
-        api.load(TARGET_DOMAIN, async_add_entity)
+        api.load(SENSOR_DOMAIN, async_add_entity)
 
     async_add_entity()
 
@@ -63,14 +61,14 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class DWeatherSensor(DWeatherDevice):
     """Representation of a DamdaWeather sensor."""
 
-    TYPE = DOMAIN
+    TYPE = SENSOR_DOMAIN
 
     @property
     def state(self):
         """Return the state of the sensor."""
-        if self.device_available is not True and self._last_state is not None:
-            return self._last_state
-        return self.api.get_state(self.unique_id)
+        state = self.api.get_state(self.unique_id)
+        if state is not None:
+            return state
 
     @property
     def icon(self):
@@ -92,8 +90,6 @@ class DWeatherSensor(DWeatherDevice):
     def unit_of_measurement(self):
         """Return the unit of measurement of this sensor."""
         value = self.api.get_state(self.unique_id, DEVICE_UNIT)
-        if value == "":
-            return None
         return value
 
     @property

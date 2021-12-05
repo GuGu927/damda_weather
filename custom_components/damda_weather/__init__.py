@@ -1,5 +1,7 @@
 """The Damda Weather integration."""
 from __future__ import annotations
+
+from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
 from .api_dweather import DamdaWeatherAPI as API
 
 import logging
@@ -25,16 +27,17 @@ def log(flag, val):
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Damda Weather from a config entry."""
-
     log(1, f"{NAME} Initialize")
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN].setdefault(API_NAME, {})
     hass.data[DOMAIN].setdefault(entry.entry_id, {})
     api = API(hass, entry, len(hass.data[DOMAIN][API_NAME]) + 1)
     hass.data[DOMAIN][API_NAME][entry.entry_id] = api
-    await api.update()
     hass.config_entries.async_setup_platforms(entry, PLATFORMS)
-
+    if hass.is_running:
+        hass.async_add_job(api.update, True)
+    else:
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, api.update)
     return True
 
 

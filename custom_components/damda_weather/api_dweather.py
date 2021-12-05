@@ -9,6 +9,7 @@ from homeassistant.helpers.dispatcher import (
 )
 import logging
 import requests
+import re
 import json
 import xmltodict
 
@@ -29,6 +30,8 @@ from .const import (
     CAST_EN,
     CAST_F,
     CAST_FDATE,
+    CAST_ML,
+    CAST_MT,
     CAST_R,
     CAST_TYPE,
     CAST_V,
@@ -38,6 +41,7 @@ from .const import (
     CODE_SKY_REV,
     CONDITION_MAP,
     CONF_API,
+    CONF_R,
     CONF_S,
     CONF_X,
     CONF_Y,
@@ -62,14 +66,13 @@ from .const import (
     ITEM_FTIME,
     ITEM_FVALUE,
     ITEM_OVALUE,
+    KMA_MID_URL,
     KMA_URL,
     MANUFACTURER,
     MODEL,
     NAME,
     NAME_KOR,
-    NEW_SENSOR,
-    NEW_WEATHER,
-    SIGNAL_REV,
+    OPT_MONITORING,
     VERSION,
     SENSOR_DOMAIN,
     W_COND,
@@ -92,7 +95,7 @@ _LOGGER = logging.getLogger(__name__)
 ZONE = ZoneInfo("Asia/Seoul")
 
 DEBUG = False
-DATE_NAME = {"0": "오늘", "1": "내일", "2": "모레", "3": "글피"}
+DATE_NAME = {"0": "오늘", "1": "내일", "2": "모레"}
 
 
 @callback
@@ -103,7 +106,7 @@ def get_api(hass, entry):
 
 def log(flag, val):
     """0:debug, 1:info, 2:warning, 3:error."""
-    if flag == 0 and DEBUG:
+    if flag == 0:
         _LOGGER.debug(f"[{NAME}] {val}")
     elif flag == 1:
         _LOGGER.info(f"[{NAME}] {val}")
@@ -234,6 +237,26 @@ def getCastTime(cast):
                 base_date2 = now.strftime("%Y-%m-%d")
                 if now_hm > compare and (i + 1) % 3 == 0:
                     dt.append([base_date, base_time, base_date2, base_time2])
+        elif cast in [CAST_MT, CAST_ML]:
+            if now_hm >= 630 and now_hm < 1830:
+                base_time = "0600"
+                base_date = now.strftime("%Y%m%d")
+                base_time2 = "06:00"
+                base_date2 = now.strftime("%Y-%m-%d")
+                dt.append([base_date, base_time, base_date2, base_time2])
+            elif now_hm >= 1830:
+                base_time = "1800"
+                base_date = now.strftime("%Y%m%d")
+                base_time2 = "18:00"
+                base_date2 = now.strftime("%Y-%m-%d")
+                dt.append([base_date, base_time, base_date2, base_time2])
+            elif now_hm < 630:
+                base_time = "1800"
+                base_date = now_d1.strftime("%Y%m%d")
+                base_time2 = "18:00"
+                base_date2 = now_d1.strftime("%Y-%m-%d")
+                dt.append([base_date, base_time, base_date2, base_time2])
+
     except Exception as ex:
         log(3, f"getCastTime > {cast} > {ex}")
     return dt
@@ -265,10 +288,7 @@ def convKMAitems(target, c, code, value, unit, device_icon):
         elif isinstance(device_icon, FunctionType):
             device_icon = device_icon(value)
     except Exception as ex:
-        log(
-            3,
-            f"[{target}] Parse device icon error > {ex} > {device_icon} > {c}",
-        )
+        log(3, f"[{target}] Parse device icon error > {ex} > {device_icon} > {c}")
     if code in ["PCP", "RN1", "SNO"] and value in [
         "없음",
         "강수없음",
@@ -316,11 +336,6 @@ class DamdaWeatherAPI:
         """Initialize the Weather API."""
         self.hass = hass
         self.entry = entry
-        self.api_key = self.get_data(CONF_API)
-        self.grid_x = self.get_data(CONF_X)
-        self.grid_y = self.get_data(CONF_Y)
-        self.station = self.get_data(CONF_S)
-        self.location = self.get_data(CONF_NAME)
         self.count = count
         self.device = {}  # unique_id: device
         self.entities = {
@@ -334,24 +349,54 @@ class DamdaWeatherAPI:
         self.last_data = {}
         self.last_update = {}
         self.try_update = {}
+        self.try_target = {}
         self.temperature = None
         self.wind_speed = None
         self.humidity = None
         self._start = False
         self.log(1, "Loading API")
 
-    def load(self, target, target_function):
+    @property
+    def api_key(self) -> str:
+        """Return the API key."""
+        return self.entry.options.get(CONF_API, self.entry.data.get(CONF_API))
+
+    @property
+    def grid_x(self) -> str:
+        """Return the API key."""
+        return self.entry.options.get(CONF_X, self.entry.data.get(CONF_X))
+
+    @property
+    def grid_y(self) -> str:
+        """Return the API key."""
+        return self.entry.options.get(CONF_Y, self.entry.data.get(CONF_Y))
+
+    @property
+    def reg_id(self) -> str:
+        """Return the reg id."""
+        return self.entry.options.get(CONF_R, self.entry.data.get(CONF_R))
+
+    @property
+    def station(self) -> str:
+        """Return the air station."""
+        return self.entry.options.get(CONF_S, self.entry.data.get(CONF_S))
+
+    @property
+    def location(self) -> str:
+        """Return the user defined name."""
+        return self.entry.options.get(CONF_NAME, self.entry.data.get(CONF_NAME))
+
+    def load(self, domain, async_add_entity):
         """Component loaded."""
-        domain = target[: len(target) - 1]
         self.loaded[domain] = True
         self.listeners.append(
             async_dispatcher_connect(
-                self.hass, self.async_signal_new_device(target), target_function
+                self.hass, self.async_signal_new_device(domain), async_add_entity
             )
         )
         if self.complete and not self._start:
             self._start = True
-        self.log(1, f"Component loaded [{self.location}] -> {target}")
+        self.log(1, f"Component loaded [{self.location}] -> {domain}")
 
     @property
     def complete(self):
@@ -361,9 +406,10 @@ class DamdaWeatherAPI:
                 return False
         return True
 
-    def log(self, level, msg):
+    def log(self, level, msg, isMonitor=False):
         """Log."""
-        log(level, f"[{self.location}] {msg}")
+        if not isMonitor or (isMonitor and self.get_option(OPT_MONITORING, False)):
+            log(level, f"[{self.location}] {msg}")
 
     def set_data(self, key, value):
         """Set entry data."""
@@ -375,6 +421,10 @@ class DamdaWeatherAPI:
     def get_data(self, key, default=False):
         """Get entry data."""
         return self.entry.data.get(key, default)
+
+    def get_option(self, name, default=False):
+        """Get entry option."""
+        return self.entry.options.get(name, default)
 
     @property
     def manufacturer(self) -> str:
@@ -404,33 +454,29 @@ class DamdaWeatherAPI:
     def async_signal_new_device(self, device_type) -> str:
         """Damda Weather specific event to signal new device."""
         new_device = {
-            NEW_SENSOR: "dweather_new_sensor",
-            NEW_WEATHER: "dweather_new_weather",
+            SENSOR_DOMAIN: "dweather_new_sensor",
+            WEATHER_DOMAIN: "dweather_new_weather",
         }
         return f"{new_device[device_type]}_{self.location}"
 
-    def async_add_device_callback(
-        self, device_type, device=None, force: bool = False
-    ) -> None:
+    def async_add_device(self, device=None, force: bool = False) -> None:
         """Handle event of new device creation in dweather."""
 
         if device is None or not isinstance(device, dict):
             return
         args = []
         unique_id = device.get(DEVICE_UNIQUE, None)
-        domain = ""
+        domain = device.get(DEVICE_DOMAIN)
         if (
-            unique_id in self.entities.get(domain, [])
-            or not self.loaded.get(SIGNAL_REV.get(device_type), False)
+            self.search_entity(domain, unique_id)
+            or not self.loaded.get(domain, False)
             or unique_id in self.hass.data[DOMAIN]
         ):
             return
 
         args.append([device])
 
-        async_dispatcher_send(
-            self.hass, self.async_signal_new_device(device_type), *args
-        )
+        async_dispatcher_send(self.hass, self.async_signal_new_device(domain), *args)
 
     def sensors(self):
         """Get sensors."""
@@ -468,9 +514,7 @@ class DamdaWeatherAPI:
     def registered(self, unique_id):
         """Check unique_id is registered."""
         device = self.search_device(unique_id)
-        if device:
-            return device.get(unique_id).get(DEVICE_UPDATE) is not None
-        return False
+        return device.get(unique_id).get(DEVICE_UPDATE) is not None if device else False
 
     def get_entities(self, domain):
         """Get self.device from self.entites domain."""
@@ -502,8 +546,7 @@ class DamdaWeatherAPI:
     def get_state(self, unique_id, target=DEVICE_STATE):
         """Get device state."""
         device = self.search_device(unique_id)
-        if device:
-            return device.get(DEVICE_ENTITY).get(target, None)
+        return device.get(DEVICE_ENTITY).get(target, None) if device else None
 
     def set_device(self, unique_id, entity):
         """Set device entity."""
@@ -533,6 +576,8 @@ class DamdaWeatherAPI:
         self.device[unique_id][DEVICE_ENTITY].update(entity)
         if device.get(DEVICE_UPDATE) is not None:
             device.get(DEVICE_UPDATE)(available)
+        else:
+            self.async_add_device(device)
 
     def make_entity(
         self, attr, icon, device_class, domain, state, unit, unique_id, entity_id, name
@@ -606,16 +651,20 @@ class DamdaWeatherAPI:
                         self.weather[W_SKY] = value
                 if forecast_h_dt > now_dt:
                     self.weather[W_FCST_H][forecast_h_time].update({entity: value})
-            elif target == CAST_V:
+            elif target in [CAST_ML, CAST_MT, CAST_V]:
                 d_data = self.weather[W_FCST_D][forecast_d_time].copy()
                 if code in ["TMN", "TMX"]:
                     entity = "temperature"
                 if entity == "temperature":
-                    max_v = d_data.get("temperature", None)
-                    min_v = d_data.get("templow", None)
-                    if max_v is None or (max_v is not None and value > max_v):
+                    max_v = d_data.get("temperature", -900)
+                    min_v = d_data.get("templow", 900)
+                    if code in ["TMN", "TMX"]:
+                        self.weather[W_FCST_D][forecast_d_time][
+                            "temperature" if code == "TMX" else "templow"
+                        ] = value
+                    if value > max_v:
                         self.weather[W_FCST_D][forecast_d_time]["temperature"] = value
-                    if min_v is None or (min_v is not None and value < min_v):
+                    if value < min_v:
                         self.weather[W_FCST_D][forecast_d_time]["templow"] = value
                 elif entity in ["precipitation", "snow"]:
                     ov = float(
@@ -669,10 +718,17 @@ class DamdaWeatherAPI:
             target = CAST_V
         elif CAST_A in url:
             target = CAST_A
+        elif CAST_ML in url:
+            target = CAST_ML
+        elif CAST_MT in url:
+            target = CAST_MT
         if target in [CAST_R, CAST_F, CAST_V]:
             return self.parse_kma(target, result, url)
         elif target in [CAST_A]:
             return self.parse_air(target, result, url)
+        elif target in [CAST_ML, CAST_MT]:
+            return self.parse_kma_mid(target, result, url)
+        return
 
     def parse_air(self, target, result, url):
         """Parse AirKorea data."""
@@ -773,12 +829,9 @@ class DamdaWeatherAPI:
                     f"target [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
                 )
         except Exception as ex:
-            self.log(
-                3,
-                f"target [{target}] > {url} > {ex}",
-            )
-        self.log(0, f"{target} -> total:{r_total} > data:{len(data)}")
-        return "AIR", data
+            self.log(3, f"target [{target}] > {url} > {ex}")
+        self.log(1, f"{target} -> total:{r_total} > data:{len(data)}", True)
+        return data
 
     def parse_kma(self, target, result, url):
         """Parse KMA data."""
@@ -850,14 +903,14 @@ class DamdaWeatherAPI:
                             dif_date2 -= 1
                             cast_time_hour = "24"
                         if (
-                            (
-                                dif_date == 0
-                                and int(cast_time_hour) < 24
-                                and code not in ["TMX", "TMN"]
-                            )
-                            or int(cast_time_hour) % 3 > 0
-                            or (dif_date == 4 and int(cast_time_hour) > 0)
-                            or dif_date > 4
+                            # (
+                            #     dif_date == 0
+                            #     and int(cast_time_hour) < 24
+                            #     and code not in ["TMX", "TMN"]
+                            # ) or
+                            int(cast_time_hour) % 3 > 0
+                            or (dif_date2 == 3 and int(cast_time_hour) > 0)
+                            or dif_date2 > 3
                         ):
                             do_not_add = True
                         if code not in ["TMX", "TMN"]:
@@ -931,15 +984,121 @@ class DamdaWeatherAPI:
                     f"target [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
                 )
         except Exception as ex:
-            self.log(
-                3,
-                f"target [{target}] > {url} > {ex}",
-            )
-        self.log(0, f"{target} -> total:{r_total} > data:{len(data)}")
-        return "KMA", data
+            self.log(3, f"target [{target}] > {url} > {ex}")
+        self.log(1, f"{target} -> total:{r_total} > data:{len(data)}", True)
+        return data
+
+    def parse_kma_mid(self, target, result, url):
+        """Parse KMA midterm data."""
+        utc = datetime.now(timezone.utc)
+        kst = utc.astimezone(ZONE)
+        now = kst
+        data = {}
+        r_res = result.get("response", {})
+        r_header = r_res.get("header", {})
+        r_code = r_header.get("resultCode", "99")
+        r_msg = r_header.get("resultMsg", "")
+        r_total = 0
+        try:
+            if ERROR_CODE.get(r_code, None) is None:
+                r_body = r_res.get("body", {})
+                r_item = r_body.get("items", {}).get("item", [])
+                r_total = r_body.get("totalCount", 0)
+                base_date = self.try_target.get(target, now.isoformat())
+                base_dt = datetime.fromisoformat(base_date).replace(tzinfo=ZONE)
+                self.last_update[target] = base_date
+                for code, value in r_item[0].items():
+                    category = CATEGORY_CODE.get(code)
+                    if not category:
+                        continue
+                    entity, name, unit, domain, device_icon, device_class = (
+                        category[0],
+                        category[1],
+                        category[2],
+                        category[3],
+                        category[4],
+                        category[5],
+                    )
+                    device_icon = (
+                        device_icon.get(value, value)
+                        if isinstance(device_icon, dict)
+                        else device_icon
+                    )
+                    header = f"dw{self.count}_{CAST_EN[target]}"
+                    dif_date = [int(s) for s in re.findall(r"\d+", code)][0]
+                    target_date = datetime.strftime(
+                        base_dt + timedelta(days=dif_date), "%m/%d"
+                    )
+                    cast_dt = base_dt + timedelta(days=dif_date)
+                    tail = target_date
+                    if "_am" in entity or "_pm" in entity:
+                        tail = f"{tail} {'오전' if '_am' in entity else '오후'}"
+                    device_name = f"{self.location} {name} {tail}"
+                    unique = f"{self.station}_{self.grid_x}_{self.grid_y}_{entity}"
+                    entity_id = f"{header}_{entity}"
+                    unique_id = f"{header}_{unique}"
+                    target_entity = entity
+                    for e in [W_POP, W_SKY, W_TEMP]:
+                        if e in entity:
+                            target_entity = e
+
+                    data.setdefault(unique_id, {})
+                    dtfmt = "%Y-%m-%d %H:%M"
+                    attr = {
+                        CAST_TYPE: CAST[target],
+                        CAST_BDATE: base_dt.strftime(dtfmt),
+                        CAST_FDATE: cast_dt.strftime(dtfmt),
+                        CAST_CODE: code,
+                        CAST_VALUE: value,
+                    }
+                    data[unique_id] = self.make_entity(
+                        attr,
+                        device_icon,
+                        device_class,
+                        domain,
+                        value,
+                        unit,
+                        unique_id,
+                        entity_id,
+                        device_name,
+                    )
+                    forecast_h_dt = cast_dt
+                    forecast_h_time = forecast_h_dt.isoformat()
+                    forecast_d_dt = forecast_h_dt.replace(hour=0, minute=0)
+                    forecast_d_time = forecast_d_dt.isoformat()
+                    weather_table = [
+                        dif_date,
+                        now,
+                        forecast_h_dt,
+                        forecast_h_time,
+                        forecast_d_time,
+                        code,
+                        entity_id,
+                        "00",
+                        target_entity,
+                        device_icon,
+                        device_class,
+                        domain,
+                        value,
+                        unit,
+                    ]
+                    self.set_weather(target, weather_table)
+            else:
+                self.last_update[target] = [r_code, r_msg, url]
+                self.log(
+                    3,
+                    f"target [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
+                )
+        except Exception as ex:
+            self.log(3, f"target [{target}] > {url} > {ex}")
+        self.log(1, f"{target} -> total:{r_total} > data:{len(data)}", True)
+        return data
 
     def getCastURL(self, cast):
-        """CAST_R:초단기실황, CAST_F:초단기예보, CAST_V:단기예보."""
+        """CAST_R:초단기실황, CAST_F:초단기예보, CAST_V:단기예보.
+
+        CAST_ML:중기육상, CAST_MT:중기기온.
+        """
         utc = datetime.now(timezone.utc)
         kst = utc.astimezone(ZONE)
         now = kst
@@ -964,16 +1123,13 @@ class DamdaWeatherAPI:
             valid = True
         if valid:
             if init_time != dt_last.strftime(fmt):
-                self.log(
-                    1,
-                    f"getCastURL > {CAST[cast]} > {valid} > target:{update_time} / before:{dt_last.strftime(fmt)} / now:{now.strftime(fmt)}",
-                )
+                msg = f"getCastURL > {CAST[cast]} > {valid} > target:{update_time} / before:{dt_last.strftime(fmt)} / now:{now.strftime(fmt)}"
+                self.log(1, msg, True)
             else:
-                self.log(
-                    1,
-                    f"getCastURL > {CAST[cast]} > {valid} > target:{update_time} / now:{now.strftime(fmt)}",
-                )
+                msg = f"getCastURL > {CAST[cast]} > {valid} > target:{update_time} / now:{now.strftime(fmt)}"
+                self.log(1, msg, True)
             self.try_update[cast] = now.strftime(fmt)
+            self.try_target[cast] = dt_update.isoformat()
             if cast in [CAST_A]:
                 url.append(AIRKOREA_URL.format(self.station, self.api_key))
             elif cast in [CAST_R, CAST_F, CAST_V]:
@@ -982,6 +1138,18 @@ class DamdaWeatherAPI:
                         KMA_URL.format(
                             cast, self.api_key, self.grid_x, self.grid_y, b[0], b[1]
                         )
+                    )
+            elif (
+                cast in [CAST_MT, CAST_ML]
+                and self.reg_id is not None
+                and self.reg_id not in ["", " "]
+            ):
+                reg_id = self.reg_id
+                if cast == CAST_ML:
+                    reg_id = reg_id[0:4] + "0000"
+                for b in base:
+                    url.append(
+                        KMA_MID_URL.format(cast, self.api_key, reg_id, b[0], b[1])
                     )
         return url
 
@@ -1009,12 +1177,20 @@ class DamdaWeatherAPI:
     async def get_target(self, target, target_list):
         """Get target data from target_list."""
         data = {}
+        utc = datetime.now(timezone.utc)
+        kst = utc.astimezone(ZONE)
+        now = kst
         try:
             for target_name in target_list:
                 cast_url = self.getCastURL(target_name)
-                if target_name == CAST_V and len(cast_url) > 0:
-                    self.weather[W_FCST_D] = {}
-                    self.weather[W_FCST_H] = {}
+                for t in self.weather[W_FCST_D].copy().keys():
+                    dt = datetime.fromisoformat(t).replace(tzinfo=ZONE)
+                    if dt < now and now - dt >= timedelta(days=1):
+                        self.weather[W_FCST_D].pop(t)
+                for t in self.weather[W_FCST_H].copy().keys():
+                    dt = datetime.fromisoformat(t).replace(tzinfo=ZONE)
+                    if dt < now and now - dt >= timedelta(hours=1):
+                        self.weather[W_FCST_H].pop(t)
                 for url in cast_url:
                     response = await self.hass.async_add_executor_job(requests.get, url)
                     try:
@@ -1033,11 +1209,10 @@ class DamdaWeatherAPI:
                             f"OpenAPI_ServiceResponse > {err_msg} > {auth_msg} > {reason_code} > {url}",
                         )
                         continue
-                    r_target, r_data = self.parse(url, r_parse)
-                    if r_target == target:
-                        for unique_id, v in r_data.items():
-                            data.setdefault(unique_id, {})
-                            data[unique_id] = v.copy()
+                    r_data = self.parse(url, r_parse)
+                    for unique_id, v in r_data.items():
+                        data.setdefault(unique_id, {})
+                        data[unique_id] = v.copy()
                 if len(data) > 0:
                     self.last_data.setdefault(target_name, {})
                     self.last_data[target_name].update(data)
@@ -1049,13 +1224,13 @@ class DamdaWeatherAPI:
 
     async def get_kma(self):
         """Get KMA data."""
-        return await self.get_target("KMA", [CAST_R, CAST_F, CAST_V])
+        return await self.get_target("KMA", [CAST_R, CAST_F, CAST_V, CAST_MT, CAST_ML])
 
     async def get_airkorea(self):
         """Get AirKorea data."""
         return await self.get_target("AIR", [CAST_A])
 
-    async def update(self):
+    async def update(self, event):
         """Update data from KMA and AirKorea."""
         air = await self.get_airkorea()
         kma = await self.get_kma()

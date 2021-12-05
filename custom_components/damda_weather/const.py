@@ -1,5 +1,7 @@
 """Constants for the Damda Weather integration."""
 import math
+import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.weather import DOMAIN as WEATHER_DOMAIN
 from homeassistant.const import (
@@ -21,7 +23,7 @@ from homeassistant.const import (
 )
 
 
-VERSION = "1.2.5"
+VERSION = "1.2.6"
 BRAND = "Damda"
 NAME = "Damda Weather"
 NAME_KOR = "담다날씨"
@@ -30,15 +32,6 @@ MODEL = "dw"
 MANUFACTURER = "data.go.kr"
 API_NAME = "dw_api"
 PLATFORMS = [SENSOR_DOMAIN, WEATHER_DOMAIN]
-
-NEW_LIGHT = "lights"
-NEW_SWITCH = "switchs"
-NEW_SENSOR = "sensors"
-NEW_BSENSOR = "binary_sensors"
-NEW_FAN = "fans"
-NEW_CLIMATE = "climates"
-NEW_COVER = "covers"
-NEW_WEATHER = "weathers"
 
 DEVICE_DOMAIN = "domain"
 DEVICE_ENTITY = "entity"
@@ -56,16 +49,11 @@ DEVICE_UNIQUE = "unique_id"
 DEVICE_ID = "entity_id"
 DEVICE_NAME = "entity_name"
 
-SIGNAL = {
-    SENSOR_DOMAIN: NEW_SENSOR,
-    WEATHER_DOMAIN: NEW_WEATHER,
-}
-SIGNAL_REV = {value: key for key, value in SIGNAL.items()}
-
 CONF_API = "api_key"
 CONF_X = "grid_x"
 CONF_Y = "grid_y"
 CONF_S = "air_station"
+CONF_R = "reg_id"
 
 
 ITEM_X = "nx"
@@ -103,18 +91,30 @@ W_PTY = "precipitation_type"
 W_POP = "precipitation_probability"
 W_LIST = [W_COND, W_HUMI, W_TEMP, W_O3, W_WD, W_WS, W_FCST, W_PCP, W_PTY, W_POP, W_SKY]
 
-KMA_URL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/{}?serviceKey={}&nx={}&ny={}&base_date={}&base_time={}&numOfRows=1000&dataType=json&pageNo=1"
+KMA_URL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/{}?serviceKey={}&nx={}&ny={}&base_date={}&base_time={}&numOfRows=1000&pageNo=1&dataType=json"
+KMA_MID_URL = "http://apis.data.go.kr/1360000/MidFcstInfoService/{}?serviceKey={}&regId={}&tmFc={}{}&numOfRows=1000&pageNo=1&dataType=json"
 AIRKOREA_URL = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?stationName={}&dataTerm=daily&pageNo=1&numOfRows=100&returnType=json&serviceKey={}&ver=1.0"
 CAST_R = "getUltraSrtNcst"
 CAST_F = "getUltraSrtFcst"
 CAST_V = "getVilageFcst"
 CAST_A = "getMsrstnAcctoRltmMesureDnsty"
-CAST = {CAST_R: "초단기실황", CAST_F: "초단기예보", CAST_V: "단기예보", CAST_A: "대기오염정보"}
+CAST_ML = "getMidLandFcst"
+CAST_MT = "getMidTa"
+CAST = {
+    CAST_R: "초단기실황",
+    CAST_F: "초단기예보",
+    CAST_V: "단기예보",
+    CAST_A: "대기오염정보",
+    CAST_ML: "중기예보",
+    CAST_MT: "중기예보",
+}
 CAST_EN = {
     CAST_R: "realtime",
     CAST_F: "forecast",
     CAST_V: "village",
     CAST_A: "airkorea",
+    CAST_ML: "midterm",
+    CAST_MT: "midterm",
 }
 
 CONDITION_MAP = {
@@ -128,6 +128,14 @@ CONDITION_MAP = {
     "빗방울": "rainy",
     "빗방울눈날림": "snowy-rainy",
     "눈날림": "snowy",
+    "구름많고 비": "rainy",
+    "구름많고 눈": "snowy",
+    "구름많고 비/눈": "snowy-rainy",
+    "구름많고 소나기": "pouring",
+    "흐리고 비": "rainy",
+    "흐리고 눈": "snowy",
+    "흐리고 비/눈": "snowy-rainy",
+    "흐리고 소나기": "pouring",
 }
 
 CODE_SKY = {"1": "맑음", "3": "구름많음", "4": "흐림"}
@@ -136,6 +144,19 @@ ICON_SKY = {
     "1": "mdi:weather-sunny",
     "3": "mdi:weather-partly-cloudy",
     "4": "mdi:weather-cloudy",
+}
+ICON_SKY_MID = {
+    "맑음": "mdi:weather-sunny",
+    "구름많음": "mdi:weather-cloudy",
+    "구름많고 비": "mdi:weather-rainy",
+    "구름많고 눈": "mdi:weather-snowy",
+    "구름많고 비/눈": "mdi:weather-snowy-rainy",
+    "구름많고 소나기": "mdi:weather-pouring",
+    "흐리고": "mdi:weather-partly-cloudy",
+    "흐리고 비": "mdi:weather-rainy",
+    "흐리고 눈": "mdi:weather-snowy",
+    "흐리고 비/눈": "mdi:weather-snowy-rainy",
+    "흐리고 소나기": "mdi:weather-pouring",
 }
 CODE_PTY = {
     "0": "없음",
@@ -233,6 +254,28 @@ def icon_snowfall(value):
         return "mdi:weather-partly-snowy"
 
 
+taMin = [
+    "최저기온",
+    TEMP_CELSIUS,
+    SENSOR_DOMAIN,
+    "mdi:thermometer-chevron-down",
+    DEVICE_CLASS_TEMPERATURE,
+]
+taMax = [
+    "최고기온",
+    TEMP_CELSIUS,
+    SENSOR_DOMAIN,
+    "mdi:thermometer-chevron-up",
+    DEVICE_CLASS_TEMPERATURE,
+]
+rnSt = [
+    "강수확률",
+    PERCENTAGE,
+    SENSOR_DOMAIN,
+    "mdi:water-percent",
+    DEVICE_CLASS_HUMIDITY,
+]
+wf = ["하늘상태", "", SENSOR_DOMAIN, ICON_SKY_MID, ""]
 CATEGORY_CODE = {
     "POP": [
         "precipitation_probability",
@@ -285,7 +328,7 @@ CATEGORY_CODE = {
         DEVICE_CLASS_TEMPERATURE,
     ],
     "TMX": [
-        "tmperature_max",
+        "temperature_max",
         "최고기온",
         TEMP_CELSIUS,
         SENSOR_DOMAIN,
@@ -321,6 +364,36 @@ CATEGORY_CODE = {
         "",
     ],
     # "LGT": ["lighting", "낙뢰", "KA/㎢", SENSOR_DOMAIN, "mdi:weather-lightning", ""],
+    "taMin3": ["temperature_min_3"] + taMin,
+    "taMax3": ["temperature_max_3"] + taMax,
+    "taMin4": ["temperature_min_4"] + taMin,
+    "taMax4": ["temperature_max_4"] + taMax,
+    "taMin5": ["temperature_min_5"] + taMin,
+    "taMax5": ["temperature_max_5"] + taMax,
+    "taMin6": ["temperature_min_6"] + taMin,
+    "taMax6": ["temperature_max_6"] + taMax,
+    "taMin7": ["temperature_min_7"] + taMin,
+    "taMax7": ["temperature_max_7"] + taMax,
+    "rnSt3Am": ["precipitation_probability_3_am"] + rnSt,
+    "rnSt3Pm": ["precipitation_probability_3_pm"] + rnSt,
+    "rnSt4Am": ["precipitation_probability_4_am"] + rnSt,
+    "rnSt4Pm": ["precipitation_probability_4_pm"] + rnSt,
+    "rnSt5Am": ["precipitation_probability_5_am"] + rnSt,
+    "rnSt5Pm": ["precipitation_probability_5_pm"] + rnSt,
+    "rnSt6Am": ["precipitation_probability_6_am"] + rnSt,
+    "rnSt6Pm": ["precipitation_probability_6_pm"] + rnSt,
+    "rnSt7Am": ["precipitation_probability_7_am"] + rnSt,
+    "rnSt7Pm": ["precipitation_probability_7_pm"] + rnSt,
+    "wf3Am": ["sky_3_am"] + wf,
+    "wf3Pm": ["sky_3_pm"] + wf,
+    "wf4Am": ["sky_4_am"] + wf,
+    "wf4Pm": ["sky_4_pm"] + wf,
+    "wf5Am": ["sky_5_am"] + wf,
+    "wf5Pm": ["sky_5_pm"] + wf,
+    "wf6Am": ["sky_6_am"] + wf,
+    "wf6Pm": ["sky_6_pm"] + wf,
+    "wf7Am": ["sky_7_am"] + wf,
+    "wf7Pm": ["sky_7_pm"] + wf,
 }
 
 
@@ -410,3 +483,25 @@ ERROR_CODE = {
     "34": "등록되지 않은 호출",
     "99": "기타 에러",
 }
+
+
+def int_between(min_int, max_int):
+    """Return an integer between 'min_int' and 'max_int'."""
+    return vol.All(vol.Coerce(int), vol.Range(min=min_int, max=max_int))
+
+
+def float_between(min_float, max_float):
+    """Return an float between 'min_float' and 'max_float'."""
+    return vol.All(vol.Coerce(float), vol.Range(min=min_float, max=max_float))
+
+
+OPT_MONITORING = "monitoring"
+OPTION_MONITOR = [(OPT_MONITORING, False, cv.boolean)]
+OPTION_DEFAULT = [
+    (CONF_API, "API key from data.go.kr", cv.string),
+    (CONF_S, "Air station name.", cv.string),
+    (CONF_X, "KMA grid X", cv.positive_int),
+    (CONF_Y, "KMA grid Y", cv.positive_int),
+    (CONF_R, "", cv.string),
+]
+OPTION_LIST = OPTION_DEFAULT + OPTION_MONITOR
