@@ -31,6 +31,7 @@ Damda Weather Component
 | v1.2.4 | 2021.10.15 | 업데이트시간 센서의 device class 지정<br>센서 표시단위 수정<br>재부팅 후 값 표시되게끔 개선<br>기타 버그 수정                           |
 | v1.2.5 | 2021.11.11 | 업데이트 시도 관련 버그 수정<br> 재부팅 후 값 표기관련 버그 수정<br>API변경에 따른 대응<br>기타 버그 수정                               |
 | v1.2.6 | 2021.12.05 | HA시작 속도에 영향을 주지 않도록 수정<br>중기예보 추가`(설정법은 아래를 참고하세요.)`<br>옵션:업데이트 시간 기록 추가<br>기타 버그 수정 |
+| v1.2.7 | 2021.12.06 | 업데이트 시간 구성요소의 entity_id, unqiue_id 변경(sensor.xxx_xxx`_updatetime`)                                                         |
 
 <br/>
 
@@ -134,5 +135,5 @@ cards:
     number_of_forecasts: "8"
 ```
 
-[version-shield]: https://img.shields.io/badge/version-v1.2.6-orange.svg
+[version-shield]: https://img.shields.io/badge/version-v1.2.7-orange.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg

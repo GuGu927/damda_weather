@@ -1239,7 +1239,7 @@ class DamdaWeatherAPI:
         for cast_target, update_time in self.last_update.items():
             name = CAST.get(cast_target, cast_target)
             name_en = CAST_EN.get(cast_target, cast_target)
-            unique_id = f"dw{self.count}_{name_en}"
+            unique_id = f"dw{self.count}_{name_en}_updatetime"
             update_time_attr = {CAST_CODE: name, CAST_TYPE: "업데이트"}
             update_time_name = f"담다날씨 {self.location} {name}"
             if not isinstance(update_time, str):  # [r_code, r_msg, url]
