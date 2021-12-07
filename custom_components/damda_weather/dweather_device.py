@@ -67,9 +67,9 @@ class DWeatherBase:
                 )
             },
             "identifiers": {(DOMAIN, f"{self.api.location}_{self.cast_type}")},
-            "manufacturer": f"{self.api.brand}",
-            "model": f"{self.api.brand}_{self.api.version}",
-            "name": f"{self.api.name} {self.api.location} {self.cast_type}",
+            "manufacturer": self.api.manufacturer,
+            "model": self.api.model,
+            "name": f"{self.api.location} {self.cast_type}",
             "sw_version": self.api.version,
             "via_device": (DOMAIN, self.api.location),
         }

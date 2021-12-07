@@ -1180,7 +1180,33 @@ class DamdaWeatherAPI:
         utc = datetime.now(timezone.utc)
         kst = utc.astimezone(ZONE)
         now = kst
+
+        async def getDataFromUrl(url):
+            """Get data."""
+            response = await self.hass.async_add_executor_job(requests.get, url)
+            try:
+                r_parse = response.json()
+            except Exception:
+                r_xml = response.content
+                r_parse = json.loads(json.dumps(xmltodict.parse(r_xml)))
+            open_api_response = r_parse.get("OpenAPI_ServiceResponse")
+            if open_api_response:
+                msg_header = open_api_response.get("cmmMsgHeader", {})
+                err_msg = msg_header.get("errMsg", "-")
+                auth_msg = msg_header.get("returnAuthMsg", "-")
+                reason_code = msg_header.get("returnReasonCode", "-")
+                self.log(
+                    3,
+                    f"OpenAPI_ServiceResponse > {err_msg} > {auth_msg} > {reason_code} > {url}",
+                )
+                return
+            r_data = self.parse(url, r_parse)
+            for unique_id, v in r_data.items():
+                data.setdefault(unique_id, {})
+                data[unique_id] = v.copy()
+
         try:
+            task_list = []
             for target_name in target_list:
                 cast_url = self.getCastURL(target_name)
                 for t in self.weather[W_FCST_D].copy().keys():
@@ -1192,27 +1218,9 @@ class DamdaWeatherAPI:
                     if dt < now and now - dt >= timedelta(hours=1):
                         self.weather[W_FCST_H].pop(t)
                 for url in cast_url:
-                    response = await self.hass.async_add_executor_job(requests.get, url)
-                    try:
-                        r_parse = response.json()
-                    except Exception:
-                        r_xml = response.content
-                        r_parse = json.loads(json.dumps(xmltodict.parse(r_xml)))
-                    open_api_response = r_parse.get("OpenAPI_ServiceResponse")
-                    if open_api_response:
-                        msg_header = open_api_response.get("cmmMsgHeader", {})
-                        err_msg = msg_header.get("errMsg", "-")
-                        auth_msg = msg_header.get("returnAuthMsg", "-")
-                        reason_code = msg_header.get("returnReasonCode", "-")
-                        self.log(
-                            3,
-                            f"OpenAPI_ServiceResponse > {err_msg} > {auth_msg} > {reason_code} > {url}",
-                        )
-                        continue
-                    r_data = self.parse(url, r_parse)
-                    for unique_id, v in r_data.items():
-                        data.setdefault(unique_id, {})
-                        data[unique_id] = v.copy()
+                    task_list.append(self.hass.async_create_task(getDataFromUrl(url)))
+                for t in task_list:
+                    await t
                 if len(data) > 0:
                     self.last_data.setdefault(target_name, {})
                     self.last_data[target_name].update(data)

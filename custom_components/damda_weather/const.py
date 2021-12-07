@@ -23,12 +23,12 @@ from homeassistant.const import (
 )
 
 
-VERSION = "1.2.6"
+VERSION = "1.3.0"
 BRAND = "Damda"
 NAME = "Damda Weather"
 NAME_KOR = "담다날씨"
 DOMAIN = "damda_weather"
-MODEL = "dw"
+MODEL = "damda_weather"
 MANUFACTURER = "data.go.kr"
 API_NAME = "dw_api"
 PLATFORMS = [SENSOR_DOMAIN, WEATHER_DOMAIN]
