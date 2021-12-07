@@ -449,7 +449,7 @@ class DamdaWeatherAPI:
     @property
     def model(self) -> str:
         """Get model."""
-        return f"{MODEL}_{VERSION}"
+        return MODEL
 
     def async_signal_new_device(self, device_type) -> str:
         """Damda Weather specific event to signal new device."""
