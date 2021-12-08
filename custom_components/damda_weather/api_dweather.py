@@ -374,7 +374,7 @@ class DamdaWeatherAPI:
     @property
     def reg_id(self) -> str:
         """Return the reg id."""
-        return self.entry.options.get(CONF_R, self.entry.data.get(CONF_R))
+        return self.entry.options.get(CONF_R, self.entry.data.get(CONF_R, "")).strip()
 
     @property
     def station(self) -> str:
@@ -843,6 +843,8 @@ class DamdaWeatherAPI:
         r_total = 0
         try:
             if ERROR_CODE.get(r_code, None) is None:
+                if "NO DATA" in result:
+                    pass
                 r_body = r_res.get("body", {})
                 r_item = r_body.get("items", {}).get("item", [])
                 r_total = r_body.get("totalCount", 0)
@@ -876,7 +878,12 @@ class DamdaWeatherAPI:
                     dif_date = 0
                     base_dt, cast_dt = base_date + base_time, cast_date + cast_time
                     dt = datetime.strptime(base_dt, "%Y%m%d%H%M").replace(tzinfo=ZONE)
-                    self.last_update[target] = dt.isoformat()
+                    fmt = "%Y-%m-%d %H:%M"
+                    init_time = datetime(2000, 1, 1).strftime(fmt)
+                    last_update = self.last_update.get(target, init_time)
+                    dt_last = datetime.fromisoformat(last_update).replace(tzinfo=ZONE)
+                    if dt > dt_last:
+                        self.last_update[target] = dt.isoformat()
                     now_dt = datetime.now(timezone.utc).astimezone(ZONE)
                     now = now_dt.strftime("%Y%m%d")
                     if dt.replace(hour=0, minute=0) < now_dt.replace(hour=0, minute=0):
@@ -1001,6 +1008,8 @@ class DamdaWeatherAPI:
         r_total = 0
         try:
             if ERROR_CODE.get(r_code, None) is None:
+                if "NO DATA" in result:
+                    pass
                 r_body = r_res.get("body", {})
                 r_item = r_body.get("items", {}).get("item", [])
                 r_total = r_body.get("totalCount", 0)
@@ -1142,11 +1151,15 @@ class DamdaWeatherAPI:
             elif (
                 cast in [CAST_MT, CAST_ML]
                 and self.reg_id is not None
-                and self.reg_id not in ["", " "]
+                and self.reg_id not in [""]
             ):
                 reg_id = self.reg_id
                 if cast == CAST_ML:
-                    reg_id = reg_id[0:4] + "0000"
+                    reg_id = (
+                        (reg_id[0:3] + "00000")
+                        if reg_id[2] in ["B", "G"]
+                        else (reg_id[0:4] + "0000")
+                    )
                 for b in base:
                     url.append(
                         KMA_MID_URL.format(cast, self.api_key, reg_id, b[0], b[1])
