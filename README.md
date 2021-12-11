@@ -34,6 +34,7 @@ Damda Weather Component
 | v1.2.7 | 2021.12.06 | 업데이트 시간 구성요소의 entity_id, unqiue_id 변경(sensor.xxx_xxx`_updatetime`)                                                         |
 | v1.3.0 | 2021.12.06 | api호출 방식 변경 및 부분 변경                                                                                                          |
 | v1.3.2 | 2021.12.08 | 서울, 인천, 경기도, 제주도 중기예보 오류 수정 및 단기예보 업데이트시간 관련 오류 수정                                                   |
+| v1.3.3 | 2021.12.11 | 히스토리 그래프 관련 수정                                                                                                               |
 
 <br/>
 
@@ -137,5 +138,5 @@ cards:
     number_of_forecasts: "8"
 ```
 
-[version-shield]: https://img.shields.io/badge/version-v1.3.2-orange.svg
+[version-shield]: https://img.shields.io/badge/version-v1.3.3-orange.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg

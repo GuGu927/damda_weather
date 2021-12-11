@@ -67,23 +67,18 @@ class DWeatherSensor(DWeatherDevice):
     def state(self):
         """Return the state of the sensor."""
         state = self.api.get_state(self.unique_id)
-        if state is not None:
-            return state
+        return state
 
     @property
     def icon(self):
         """Return the icon of the sensor."""
         value = self.api.get_state(self.unique_id, DEVICE_ICON)
-        if value == "":
-            return None
         return value
 
     @property
     def device_class(self):
         """Return the class of the sensor."""
         value = self.api.get_state(self.unique_id, DEVICE_CLASS)
-        if value == "":
-            return None
         return value
 
     @property

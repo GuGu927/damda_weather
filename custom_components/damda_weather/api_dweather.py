@@ -324,6 +324,8 @@ def convKMAitems(target, c, code, value, unit, device_icon):
                     value = float(value)
                 else:
                     unit = ""
+            else:
+                unit = None
     except Exception as ex:
         log(3, f"[{target}] Parse value error > {ex} > {value} > {c}")
     return value, unit, device_icon
@@ -783,7 +785,7 @@ class DamdaWeatherAPI:
                         try:
                             if isinstance(unit, dict):
                                 value = unit.get(str(value), value)
-                                unit = ""
+                                unit = None
                             elif isinstance(unit, FunctionType):
                                 attr[CAST_CODE] = value
                                 value, unit = unit(value)
@@ -796,6 +798,7 @@ class DamdaWeatherAPI:
                                 pass
                             elif isnumber(value):
                                 value = float(value)
+                                unit = ""
                             elif value is None:
                                 value = "-"
                         except Exception as ex:

@@ -23,7 +23,7 @@ from homeassistant.const import (
 )
 
 
-VERSION = "1.3.2"
+VERSION = "1.3.3"
 BRAND = "Damda"
 NAME = "Damda Weather"
 NAME_KOR = "담다날씨"
@@ -275,7 +275,7 @@ rnSt = [
     "mdi:water-percent",
     DEVICE_CLASS_HUMIDITY,
 ]
-wf = ["하늘상태", "", SENSOR_DOMAIN, ICON_SKY_MID, ""]
+wf = ["하늘상태", None, SENSOR_DOMAIN, ICON_SKY_MID, None]
 CATEGORY_CODE = {
     "POP": [
         "precipitation_probability",
@@ -291,7 +291,7 @@ CATEGORY_CODE = {
         CODE_PTY,
         SENSOR_DOMAIN,
         ICON_PTY,
-        "",
+        None,
     ],
     "PCP": [
         "precipitation",
@@ -299,7 +299,7 @@ CATEGORY_CODE = {
         LENGTH_MILLIMETERS,
         SENSOR_DOMAIN,
         icon_rainfall,
-        "",
+        None,
     ],
     "REH": [
         "humidity",
@@ -309,8 +309,8 @@ CATEGORY_CODE = {
         "mdi:water-percent",
         DEVICE_CLASS_HUMIDITY,
     ],
-    "SNO": ["snow", "적설", LENGTH_CENTIMETERS, SENSOR_DOMAIN, icon_snowfall, ""],
-    "SKY": ["sky", "하늘상태", CODE_SKY, SENSOR_DOMAIN, ICON_SKY, ""],
+    "SNO": ["snow", "적설", LENGTH_CENTIMETERS, SENSOR_DOMAIN, icon_snowfall, None],
+    "SKY": ["sky", "하늘상태", CODE_SKY, SENSOR_DOMAIN, ICON_SKY, None],
     "TMP": [
         "temperature",
         "기온",
@@ -337,15 +337,15 @@ CATEGORY_CODE = {
     ],
     # "UUU": ["wind_ew", "풍속(동서)", SPEED_METERS_PER_SECOND],
     # "VVV": ["wind_sn", "풍속(남북)", SPEED_METERS_PER_SECOND],
-    # "WAV": ["wave", "파고", LENGTH_METERS, SENSOR_DOMAIN, "mdi:waves", ""],
-    "VEC": ["wind_bearing", "풍향", conv_wind, SENSOR_DOMAIN, "mdi:weather-windy", ""],
+    # "WAV": ["wave", "파고", LENGTH_METERS, SENSOR_DOMAIN, "mdi:waves", None],
+    "VEC": ["wind_bearing", "풍향", conv_wind, SENSOR_DOMAIN, "mdi:weather-windy", None],
     "WSD": [
         "wind_speed",
         "풍속",
         SPEED_METERS_PER_SECOND,
         SENSOR_DOMAIN,
         "mdi:weather-windy",
-        "",
+        None,
     ],
     "T1H": [
         "temperature",
@@ -361,7 +361,7 @@ CATEGORY_CODE = {
         LENGTH_MILLIMETERS,
         SENSOR_DOMAIN,
         icon_rainfall,
-        "",
+        None,
     ],
     # "LGT": ["lighting", "낙뢰", "KA/㎢", SENSOR_DOMAIN, "mdi:weather-lightning", ""],
     "taMin3": ["temperature_min_3"] + taMin,
@@ -439,18 +439,18 @@ AIRKOREA_ITEM = {
         "mdi:blur",
         DEVICE_CLASS_PM25,
     ],
-    "khaiValue": ["khai_value", "통합대기환경수치", "", SENSOR_DOMAIN, "mdi:earth", ""],
+    "khaiValue": ["khai_value", "통합대기환경수치", None, SENSOR_DOMAIN, "mdi:earth", None],
     # "so2Grade": ["so2_grade", "아황산가스 지수", GRADE_VALUE, SENSOR_DOMAIN],
-    "coGrade": ["co_grade", "일산화탄소 지수", GRADE_VALUE, SENSOR_DOMAIN, GRADE_ICON, ""],
-    "o3Grade": ["o3_grade", "오존 지수", GRADE_VALUE, SENSOR_DOMAIN, GRADE_ICON, ""],
-    "no2Grade": ["no2_grade", "이산화질소 지수", GRADE_VALUE, SENSOR_DOMAIN, GRADE_ICON, ""],
+    "coGrade": ["co_grade", "일산화탄소 지수", GRADE_VALUE, SENSOR_DOMAIN, GRADE_ICON, None],
+    "o3Grade": ["o3_grade", "오존 지수", GRADE_VALUE, SENSOR_DOMAIN, GRADE_ICON, None],
+    "no2Grade": ["no2_grade", "이산화질소 지수", GRADE_VALUE, SENSOR_DOMAIN, GRADE_ICON, None],
     "pm10Grade": [
         "pm10_grade",
         "미세먼지 지수",
         GRADE_VALUE,
         SENSOR_DOMAIN,
         GRADE_ICON,
-        "",
+        None,
     ],
     "pm25Grade": [
         "pm25_grade",
@@ -458,9 +458,16 @@ AIRKOREA_ITEM = {
         GRADE_VALUE,
         SENSOR_DOMAIN,
         GRADE_ICON,
-        "",
+        None,
     ],
-    "khaiGrade": ["khai_grade", "통합대기환경지수", GRADE_VALUE, SENSOR_DOMAIN, GRADE_ICON, ""],
+    "khaiGrade": [
+        "khai_grade",
+        "통합대기환경지수",
+        GRADE_VALUE,
+        SENSOR_DOMAIN,
+        GRADE_ICON,
+        None,
+    ],
 }
 
 
