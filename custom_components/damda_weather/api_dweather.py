@@ -59,6 +59,7 @@ from .const import (
     DEVICE_UPDATE,
     DOMAIN,
     ERROR_CODE,
+    ICON_SKY_MID_VALUE,
     ITEM_BDATE,
     ITEM_BTIME,
     ITEM_CATEGORY,
@@ -683,9 +684,16 @@ class DamdaWeatherAPI:
                     ov = d_data.get(entity, 0)
                     if value >= ov:
                         self.weather[W_FCST_D][forecast_d_time][entity] = value
-                elif entity in [W_SKY, W_PTY]:
+                elif entity in [W_SKY, W_PTY] and target in [CAST_V]:
                     default = "맑음" if entity == W_SKY else "없음"
                     code = CODE_SKY_REV if entity == W_SKY else CODE_PTY_REV
+                    ovalue_code = int(code.get(d_data.get(entity, default), 0))
+                    value_code = int(code.get(value, 0))
+                    if value_code >= ovalue_code:
+                        self.weather[W_FCST_D][forecast_d_time][entity] = value
+                elif entity in [W_SKY, W_PTY] and target in [CAST_ML, CAST_MT]:
+                    default = "맑음" if entity == W_SKY else "없음"
+                    code = ICON_SKY_MID_VALUE
                     ovalue_code = int(code.get(d_data.get(entity, default), 0))
                     value_code = int(code.get(value, 0))
                     if value_code >= ovalue_code:
@@ -828,7 +836,7 @@ class DamdaWeatherAPI:
             else:
                 self.last_update[target] = [r_code, r_msg, url]
                 self.log(
-                    3,
+                    2,
                     f"target [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
                 )
         except Exception as ex:
@@ -990,7 +998,7 @@ class DamdaWeatherAPI:
             else:
                 self.last_update[target] = [r_code, r_msg, url]
                 self.log(
-                    3,
+                    2,
                     f"target [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
                 )
         except Exception as ex:
@@ -1098,7 +1106,7 @@ class DamdaWeatherAPI:
             else:
                 self.last_update[target] = [r_code, r_msg, url]
                 self.log(
-                    3,
+                    2,
                     f"target [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
                 )
         except Exception as ex:
@@ -1212,7 +1220,7 @@ class DamdaWeatherAPI:
                 auth_msg = msg_header.get("returnAuthMsg", "-")
                 reason_code = msg_header.get("returnReasonCode", "-")
                 self.log(
-                    3,
+                    0,
                     f"OpenAPI_ServiceResponse > {err_msg} > {auth_msg} > {reason_code} > {url}",
                 )
                 return

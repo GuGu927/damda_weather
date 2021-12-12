@@ -4,14 +4,8 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.weather import DOMAIN as WEATHER_DOMAIN
+from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import (
-    DEVICE_CLASS_CO,
-    DEVICE_CLASS_HUMIDITY,
-    DEVICE_CLASS_NITROGEN_DIOXIDE,
-    DEVICE_CLASS_OZONE,
-    DEVICE_CLASS_PM10,
-    DEVICE_CLASS_PM25,
-    DEVICE_CLASS_TEMPERATURE,
     # LENGTH_METERS,
     TEMP_CELSIUS,
     SPEED_METERS_PER_SECOND,
@@ -23,7 +17,7 @@ from homeassistant.const import (
 )
 
 
-VERSION = "1.3.3"
+VERSION = "1.3.4"
 BRAND = "Damda"
 NAME = "Damda Weather"
 NAME_KOR = "담다날씨"
@@ -158,6 +152,19 @@ ICON_SKY_MID = {
     "흐리고 비/눈": "mdi:weather-snowy-rainy",
     "흐리고 소나기": "mdi:weather-pouring",
 }
+ICON_SKY_MID_VALUE = {
+    "맑음": 1,
+    "구름많음": 2,
+    "구름많고 비": 3,
+    "구름많고 눈": 4,
+    "구름많고 비/눈": 5,
+    "구름많고 소나기": 6,
+    "흐리고": 2.5,
+    "흐리고 비": 3.5,
+    "흐리고 눈": 4.5,
+    "흐리고 비/눈": 5.5,
+    "흐리고 소나기": 6.5,
+}
 CODE_PTY = {
     "0": "없음",
     "1": "비",
@@ -259,21 +266,21 @@ taMin = [
     TEMP_CELSIUS,
     SENSOR_DOMAIN,
     "mdi:thermometer-chevron-down",
-    DEVICE_CLASS_TEMPERATURE,
+    SensorDeviceClass.TEMPERATURE,
 ]
 taMax = [
     "최고기온",
     TEMP_CELSIUS,
     SENSOR_DOMAIN,
     "mdi:thermometer-chevron-up",
-    DEVICE_CLASS_TEMPERATURE,
+    SensorDeviceClass.TEMPERATURE,
 ]
 rnSt = [
     "강수확률",
     PERCENTAGE,
     SENSOR_DOMAIN,
     "mdi:water-percent",
-    DEVICE_CLASS_HUMIDITY,
+    SensorDeviceClass.HUMIDITY,
 ]
 wf = ["하늘상태", None, SENSOR_DOMAIN, ICON_SKY_MID, None]
 CATEGORY_CODE = {
@@ -283,7 +290,7 @@ CATEGORY_CODE = {
         PERCENTAGE,
         SENSOR_DOMAIN,
         "mdi:water-percent",
-        DEVICE_CLASS_HUMIDITY,
+        SensorDeviceClass.HUMIDITY,
     ],
     "PTY": [
         "precipitation_type",
@@ -307,7 +314,7 @@ CATEGORY_CODE = {
         PERCENTAGE,
         SENSOR_DOMAIN,
         "mdi:water-percent",
-        DEVICE_CLASS_HUMIDITY,
+        SensorDeviceClass.HUMIDITY,
     ],
     "SNO": ["snow", "적설", LENGTH_CENTIMETERS, SENSOR_DOMAIN, icon_snowfall, None],
     "SKY": ["sky", "하늘상태", CODE_SKY, SENSOR_DOMAIN, ICON_SKY, None],
@@ -317,7 +324,7 @@ CATEGORY_CODE = {
         TEMP_CELSIUS,
         SENSOR_DOMAIN,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
     ],
     "TMN": [
         "temperature_min",
@@ -325,7 +332,7 @@ CATEGORY_CODE = {
         TEMP_CELSIUS,
         SENSOR_DOMAIN,
         "mdi:thermometer-chevron-down",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
     ],
     "TMX": [
         "temperature_max",
@@ -333,7 +340,7 @@ CATEGORY_CODE = {
         TEMP_CELSIUS,
         SENSOR_DOMAIN,
         "mdi:thermometer-chevron-up",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
     ],
     # "UUU": ["wind_ew", "풍속(동서)", SPEED_METERS_PER_SECOND],
     # "VVV": ["wind_sn", "풍속(남북)", SPEED_METERS_PER_SECOND],
@@ -353,7 +360,7 @@ CATEGORY_CODE = {
         TEMP_CELSIUS,
         SENSOR_DOMAIN,
         "mdi:thermometer",
-        DEVICE_CLASS_TEMPERATURE,
+        SensorDeviceClass.TEMPERATURE,
     ],
     "RN1": [
         "precipitation",
@@ -405,7 +412,7 @@ AIRKOREA_ITEM = {
         CONCENTRATION_PARTS_PER_MILLION,
         SENSOR_DOMAIN,
         "mdi:molecule-co",
-        DEVICE_CLASS_CO,
+        SensorDeviceClass.CO,
     ],
     "o3Value": [
         "o3_value",
@@ -413,7 +420,7 @@ AIRKOREA_ITEM = {
         CONCENTRATION_PARTS_PER_MILLION,
         SENSOR_DOMAIN,
         "mdi:alpha-o-circle",
-        DEVICE_CLASS_OZONE,
+        SensorDeviceClass.OZONE,
     ],
     "no2Value": [
         "no2_value",
@@ -421,7 +428,7 @@ AIRKOREA_ITEM = {
         CONCENTRATION_PARTS_PER_MILLION,
         SENSOR_DOMAIN,
         "mdi:alpha-n-circle",
-        DEVICE_CLASS_NITROGEN_DIOXIDE,
+        SensorDeviceClass.NITROGEN_DIOXIDE,
     ],
     "pm10Value": [
         "pm10_value",
@@ -429,7 +436,7 @@ AIRKOREA_ITEM = {
         CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
         SENSOR_DOMAIN,
         "mdi:blur",
-        DEVICE_CLASS_PM10,
+        SensorDeviceClass.PM10,
     ],
     "pm25Value": [
         "pm25_value",
@@ -437,7 +444,7 @@ AIRKOREA_ITEM = {
         CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
         SENSOR_DOMAIN,
         "mdi:blur",
-        DEVICE_CLASS_PM25,
+        SensorDeviceClass.PM25,
     ],
     "khaiValue": ["khai_value", "통합대기환경수치", None, SENSOR_DOMAIN, "mdi:earth", None],
     # "so2Grade": ["so2_grade", "아황산가스 지수", GRADE_VALUE, SENSOR_DOMAIN],
