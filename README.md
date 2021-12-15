@@ -36,6 +36,7 @@ Damda Weather Component
 | v1.3.2 | 2021.12.08 | 서울, 인천, 경기도, 제주도 중기예보 오류 수정 및 단기예보 업데이트시간 관련 오류 수정                                                   |
 | v1.3.3 | 2021.12.11 | 히스토리 그래프 관련 수정                                                                                                               |
 | v1.3.4 | 2021.12.12 | 중기예보 아이콘 오류 수정<br>2021.12 버전 업데이트 대응                                                                                 |
+| v1.3.5 | 2021.12.15 | 2021.12 버전 업데이트 대응2                                                                                                             |
 
 <br/>
 
@@ -139,5 +140,5 @@ cards:
     number_of_forecasts: "8"
 ```
 
-[version-shield]: https://img.shields.io/badge/version-v1.3.4-orange.svg
+[version-shield]: https://img.shields.io/badge/version-v1.3.5-orange.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg
