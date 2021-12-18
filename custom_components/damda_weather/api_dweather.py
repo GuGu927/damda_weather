@@ -295,6 +295,12 @@ def convKMAitems(target, c, code, value, unit, device_icon):
         "강수없음",
         "1mm 미만",
         "1.0mm 미만",
+        "1mm미만",
+        "1.0mm미만",
+        "1cm 미만",
+        "1.0cm 미만",
+        "1cm미만",
+        "1.0cm미만",
         "적설없음",
     ]:
         value = "0"
