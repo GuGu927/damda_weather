@@ -38,6 +38,7 @@ Damda Weather Component
 | v1.3.4 | 2021.12.12 | 중기예보 아이콘 오류 수정<br>2021.12 버전 업데이트 대응                                                                                 |
 | v1.3.5 | 2021.12.15 | 2021.12 버전 업데이트 대응2                                                                                                             |
 | v1.3.6 | 2021.12.18 | 적설량 관련 오류 수정                                                                                                                   |
+| v1.3.7 | 2021.12.23 | 통계그래프 가능하게끔 수정                                                                                                              |
 
 <br/>
 
@@ -141,5 +142,5 @@ cards:
     number_of_forecasts: "8"
 ```
 
-[version-shield]: https://img.shields.io/badge/version-v1.3.6-orange.svg
+[version-shield]: https://img.shields.io/badge/version-v1.3.7-orange.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg

@@ -9,6 +9,7 @@ from .const import (
     DEVICE_UNIT,
     NAME,
 )
+from homeassistant.components.sensor import SensorEntity
 from .dweather_device import DWeatherDevice
 from .api_dweather import get_api
 import logging
@@ -58,7 +59,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     async_add_entity()
 
 
-class DWeatherSensor(DWeatherDevice):
+class DWeatherSensor(DWeatherDevice, SensorEntity):
     """Representation of a DamdaWeather sensor."""
 
     TYPE = SENSOR_DOMAIN

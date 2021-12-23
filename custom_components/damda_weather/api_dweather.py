@@ -617,7 +617,7 @@ class DamdaWeatherAPI:
             entity.pop(DEVICE_STATE)
         return entity
 
-    def set_weather(self, target, dt):
+    def set_weather(self, target, dt):  # noqa: C901
         """Set self.weather data."""
         dif_date = dt[0]
         now_dt = dt[1]
