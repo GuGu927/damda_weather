@@ -155,10 +155,16 @@ def calc_windchill(t, v):
     """Calculate Apparent temperature."""
     t = float(t)
     v = float(v)
+    # JAG/TI 모델을 토대로한 새로운 최적의 모델
     wc = round(
-        13.127 + 0.6215 * t - 13.947 * pow(v, 0.16) + 0.486 * t * pow(v, 0.16),
+        13.12 + 0.6215 * t - 11.37 * pow(v, 0.16) + 0.3965 * t * pow(v, 0.16),
         1,
     )
+    # JAG/TI 모델
+    # wc = round(
+    #     13.127 + 0.6215 * t - 13.947 * pow(v, 0.16) + 0.486 * t * pow(v, 0.16),
+    #     1,
+    # )
     return wc
 
 

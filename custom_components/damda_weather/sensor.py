@@ -29,6 +29,28 @@ def log(flag, val):
         _LOGGER.error(f"[{NAME}] Sensor > {val}")
 
 
+def isfloat(value):
+    """Determine string is float."""
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+
+def isnumber(value):
+    """Determine string is number."""
+    return (
+        value is not None
+        and isinstance(value, (str, int, float))
+        and (
+            isinstance(value, str)
+            and (value.isnumeric() or value.isdigit())
+            or isfloat(value)
+        )
+    )
+
+
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up sensor for Damda Waether component."""
 
@@ -91,4 +113,4 @@ class DWeatherSensor(DWeatherDevice, SensorEntity):
     @property
     def state_class(self):
         """Type of this sensor state."""
-        return "measurement"
+        return "measurement" if isnumber(self.state) else None
