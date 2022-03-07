@@ -1,6 +1,7 @@
 """API for KMA weather and AirKorea from 'data.go.kr'."""
 from math import sqrt
-from homeassistant.const import CONF_NAME, DEVICE_CLASS_TIMESTAMP
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
 
 from homeassistant.helpers.dispatcher import (
@@ -1205,7 +1206,7 @@ class DamdaWeatherAPI:
                 s1.append(len(v.get(DEVICE_ATTR).get(CAST_TYPE)))
                 s1.append(len(v.get(DEVICE_ID)))
                 s2 = [s0[0] - s1[0], s0[1] - s1[1]]
-                msg = f"{v.get(DEVICE_ATTR).get(CAST_TYPE)}{' '*s2[0]} > {v.get(DEVICE_ATTR).get(CAST_FDATE)} > {v.get(DEVICE_ID)}{' '*s2[1]} > {v.get(DEVICE_STATE)}{v.get(DEVICE_UNIT)}"
+                msg = f"{v.get(DEVICE_ATTR).get(CAST_TYPE)}{' '*s2[0]} > {v.get(DEVICE_ATTR).get(CAST_FDATE,'')} > {v.get(DEVICE_ID)}{' '*s2[1]} > {v.get(DEVICE_STATE)}{v.get(DEVICE_UNIT,'')}"
                 self.log(0, msg)
         except Exception as ex:
             self.log(0, f"pretty_print > {ex} > {items}")
@@ -1286,16 +1287,18 @@ class DamdaWeatherAPI:
             unique_id = f"dw{self.count}_{name_en}_updatetime"
             update_time_attr = {CAST_CODE: name, CAST_TYPE: "업데이트"}
             update_time_name = f"담다날씨 {self.location} {name}"
-            if not isinstance(update_time, str):  # [r_code, r_msg, url]
+            if (
+                isinstance(update_time, list) and len(update_time) == 3
+            ):  # [r_code, r_msg, url]
                 update_time = update_time[1]
                 update_time_attr["error_code"] = update_time[0]
                 update_time_attr["error_url"] = update_time[2]
             self.result[unique_id] = self.make_entity(
                 update_time_attr,
                 "mdi:clock-outline",
-                DEVICE_CLASS_TIMESTAMP,
+                SensorDeviceClass.TIMESTAMP,
                 SENSOR_DOMAIN,
-                update_time,
+                datetime.fromisoformat(update_time).replace(tzinfo=ZONE),
                 None,
                 unique_id,
                 unique_id,

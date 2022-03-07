@@ -40,6 +40,7 @@ Damda Weather Component
 | v1.3.6 | 2021.12.18 | 적설량 관련 오류 수정                                                                                                                   |
 | v1.3.7 | 2021.12.23 | 통계그래프 가능하게끔 수정                                                                                                              |
 | v1.3.8 | 2022.01.04 | 체감온도 계산식 변경<br>오류 수정                                                                                                       |
+| v1.3.9 | 2022.03.07 | 2022.3 업데이트 대응(sensor 의 datetime/time deprecated 관련)                                                                           |
 
 <br/>
 
@@ -143,5 +144,5 @@ cards:
     number_of_forecasts: "8"
 ```
 
-[version-shield]: https://img.shields.io/badge/version-v1.3.8-orange.svg
+[version-shield]: https://img.shields.io/badge/version-v1.3.9-orange.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg
