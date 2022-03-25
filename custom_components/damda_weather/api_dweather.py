@@ -850,10 +850,10 @@ class DamdaWeatherAPI:
                 self.last_update[target] = [r_code, r_msg, url]
                 self.log(
                     2,
-                    f"target [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
+                    f"target parse_air [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
                 )
         except Exception as ex:
-            self.log(3, f"target [{target}] > {url} > {ex}")
+            self.log(3, f"target parse_air [{target}] > {url} > {ex}")
         self.log(1, f"{target} -> total:{r_total} > data:{len(data)}", True)
         return data
 
@@ -1012,10 +1012,10 @@ class DamdaWeatherAPI:
                 self.last_update[target] = [r_code, r_msg, url]
                 self.log(
                     2,
-                    f"target [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
+                    f"target parse_kma [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
                 )
         except Exception as ex:
-            self.log(3, f"target [{target}] > {url} > {ex}")
+            self.log(3, f"target parse_kma [{target}] > {url} > {ex}")
         self.log(1, f"{target} -> total:{r_total} > data:{len(data)}", True)
         return data
 
@@ -1120,10 +1120,10 @@ class DamdaWeatherAPI:
                 self.last_update[target] = [r_code, r_msg, url]
                 self.log(
                     2,
-                    f"target [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
+                    f"target parse_kma_mid [{target}] > {ERROR_CODE.get(r_code, r_code)} > {r_msg}[{r_code}] > {url} > {result}",
                 )
         except Exception as ex:
-            self.log(3, f"target [{target}] > {url} > {ex}")
+            self.log(3, f"target parse_kma_mid [{target}] > {url} > {ex}")
         self.log(1, f"{target} -> total:{r_total} > data:{len(data)}", True)
         return data
 
@@ -1298,7 +1298,8 @@ class DamdaWeatherAPI:
                 "mdi:clock-outline",
                 SensorDeviceClass.TIMESTAMP,
                 SENSOR_DOMAIN,
-                datetime.fromisoformat(update_time).replace(tzinfo=ZONE),
+                update_time,
+                # datetime.fromisoformat(update_time).replace(tzinfo=ZONE),
                 None,
                 unique_id,
                 unique_id,
