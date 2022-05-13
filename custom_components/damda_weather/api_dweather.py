@@ -13,6 +13,7 @@ import requests
 import re
 import json
 import xmltodict
+import time
 
 from types import FunctionType
 from zoneinfo import ZoneInfo
@@ -370,6 +371,7 @@ class DamdaWeatherAPI:
         self.wind_speed = None
         self.humidity = None
         self._start = False
+        self._last_error = 0
         self.log(1, "Loading API")
 
     @property
@@ -1277,9 +1279,17 @@ class DamdaWeatherAPI:
 
     async def update(self, event):
         """Update data from KMA and AirKorea."""
-        air = await self.get_airkorea()
-        kma = await self.get_kma()
-        self.result.update(merge_dicts(kma, air))
+        if time.time() - self._last_error > 10 * 60:
+            try:
+                air = await self.get_airkorea()
+                kma = await self.get_kma()
+                self.result.update(merge_dicts(kma, air))
+            except Exception as ex:
+                self.log(3, f"Error at update > {ex}")
+                self._last_error = time.time()
+                return
+        else:
+            return
 
         for cast_target, update_time in self.last_update.items():
             name = CAST.get(cast_target, cast_target)
