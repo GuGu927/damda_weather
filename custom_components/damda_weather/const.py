@@ -17,7 +17,7 @@ from homeassistant.const import (
 )
 
 
-VERSION = "1.4.1"
+VERSION = "1.4.2"
 BRAND = "Damda"
 NAME = "Damda Weather"
 NAME_KOR = "담다날씨"
@@ -405,7 +405,14 @@ CATEGORY_CODE = {
 
 
 AIRKOREA_ITEM = {
-    # "so2Value": ["so2_value", "아황산가스 농도", CONCENTRATION_PARTS_PER_MILLION, SENSOR_DOMAIN, "", ""],
+    "so2Value": [
+        "so2_value",
+        "아황산가스 농도",
+        CONCENTRATION_PARTS_PER_MILLION,
+        SENSOR_DOMAIN,
+        "mdi:alpha-s-circle",
+        None,
+    ],
     "coValue": [
         "co_value",
         "일산화탄소 농도",
@@ -447,7 +454,7 @@ AIRKOREA_ITEM = {
         SensorDeviceClass.PM25,
     ],
     "khaiValue": ["khai_value", "통합대기환경수치", None, SENSOR_DOMAIN, "mdi:earth", None],
-    # "so2Grade": ["so2_grade", "아황산가스 지수", GRADE_VALUE, SENSOR_DOMAIN],
+    "so2Grade": ["so2_grade", "아황산가스 지수", GRADE_VALUE, SENSOR_DOMAIN, GRADE_ICON, None],
     "coGrade": ["co_grade", "일산화탄소 지수", GRADE_VALUE, SENSOR_DOMAIN, GRADE_ICON, None],
     "o3Grade": ["o3_grade", "오존 지수", GRADE_VALUE, SENSOR_DOMAIN, GRADE_ICON, None],
     "no2Grade": ["no2_grade", "이산화질소 지수", GRADE_VALUE, SENSOR_DOMAIN, GRADE_ICON, None],
