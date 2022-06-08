@@ -907,7 +907,11 @@ class DamdaWeatherAPI:
                     fmt = "%Y-%m-%d %H:%M"
                     init_time = datetime(2000, 1, 1).strftime(fmt)
                     last_update = self.last_update.get(target, init_time)
-                    dt_last = datetime.fromisoformat(last_update).replace(tzinfo=ZONE)
+                    dt_last = (
+                        datetime.fromisoformat(last_update).replace(tzinfo=ZONE)
+                        if isinstance(last_update, str)
+                        else init_time
+                    )
                     if dt > dt_last:
                         self.last_update[target] = dt.isoformat()
                     now_dt = datetime.now(timezone.utc).astimezone(ZONE)
@@ -1249,13 +1253,15 @@ class DamdaWeatherAPI:
             for target_name in target_list:
                 cast_url = self.getCastURL(target_name)
                 for t in self.weather[W_FCST_D].copy().keys():
-                    dt = datetime.fromisoformat(t).replace(tzinfo=ZONE)
-                    if dt < now and now - dt >= timedelta(days=1):
-                        self.weather[W_FCST_D].pop(t)
+                    if isinstance(t, str):
+                        dt = datetime.fromisoformat(t).replace(tzinfo=ZONE)
+                        if dt < now and now - dt >= timedelta(days=1):
+                            self.weather[W_FCST_D].pop(t)
                 for t in self.weather[W_FCST_H].copy().keys():
-                    dt = datetime.fromisoformat(t).replace(tzinfo=ZONE)
-                    if dt < now and now - dt >= timedelta(hours=1):
-                        self.weather[W_FCST_H].pop(t)
+                    if isinstance(t, str):
+                        dt = datetime.fromisoformat(t).replace(tzinfo=ZONE)
+                        if dt < now and now - dt >= timedelta(hours=1):
+                            self.weather[W_FCST_H].pop(t)
                 for url in cast_url:
                     task_list.append(self.hass.async_create_task(getDataFromUrl(url)))
                 for t in task_list:
@@ -1291,24 +1297,25 @@ class DamdaWeatherAPI:
         else:
             return
 
-        for cast_target, update_time in self.last_update.items():
+        for cast_target, update_time_list in self.last_update.items():
             name = CAST.get(cast_target, cast_target)
             name_en = CAST_EN.get(cast_target, cast_target)
             unique_id = f"dw{self.count}_{name_en}_updatetime"
+            update_time = None
             update_time_attr = {CAST_CODE: name, CAST_TYPE: "업데이트"}
             update_time_name = f"담다날씨 {self.location} {name}"
             if (
-                isinstance(update_time, list) and len(update_time) == 3
+                isinstance(update_time_list, list) and len(update_time_list) == 3
             ):  # [r_code, r_msg, url]
-                update_time = update_time[1]
-                update_time_attr["error_code"] = update_time[0]
-                update_time_attr["error_url"] = update_time[2]
+                update_time = update_time_list[1]
+                update_time_attr["error_code"] = update_time_list[0]
+                update_time_attr["error_url"] = update_time_list[2]
             self.result[unique_id] = self.make_entity(
                 update_time_attr,
                 "mdi:clock-outline",
                 SensorDeviceClass.TIMESTAMP,
                 SENSOR_DOMAIN,
-                update_time,
+                update_time or update_time_list,
                 # datetime.fromisoformat(update_time).replace(tzinfo=ZONE),
                 None,
                 unique_id,
