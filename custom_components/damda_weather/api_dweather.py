@@ -910,7 +910,7 @@ class DamdaWeatherAPI:
                     dt_last = (
                         datetime.fromisoformat(last_update).replace(tzinfo=ZONE)
                         if isinstance(last_update, str)
-                        else init_time
+                        else datetime(2000, 1, 1)
                     )
                     if dt > dt_last:
                         self.last_update[target] = dt.isoformat()
@@ -1310,12 +1310,14 @@ class DamdaWeatherAPI:
                 update_time = update_time_list[1]
                 update_time_attr["error_code"] = update_time_list[0]
                 update_time_attr["error_url"] = update_time_list[2]
+            else:
+                update_time_attr["error"] = update_time_list
             self.result[unique_id] = self.make_entity(
                 update_time_attr,
                 "mdi:clock-outline",
                 SensorDeviceClass.TIMESTAMP,
                 SENSOR_DOMAIN,
-                update_time or update_time_list,
+                update_time,
                 # datetime.fromisoformat(update_time).replace(tzinfo=ZONE),
                 None,
                 unique_id,
