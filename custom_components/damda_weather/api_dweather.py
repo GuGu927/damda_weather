@@ -1311,7 +1311,13 @@ class DamdaWeatherAPI:
                 update_time_attr["error_code"] = update_time_list[0]
                 update_time_attr["error_url"] = update_time_list[2]
             else:
-                update_time_attr["error"] = update_time_list
+                try:
+                    # 2022년 6월 10일 10:00:00
+                    update_time = datetime.fromisoformat(update_time_list).replace(
+                        tzinfo=ZONE
+                    )
+                except Exception:
+                    update_time_attr["error"] = update_time_list
             self.result[unique_id] = self.make_entity(
                 update_time_attr,
                 "mdi:clock-outline",
