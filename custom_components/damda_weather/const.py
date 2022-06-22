@@ -17,7 +17,7 @@ from homeassistant.const import (
 )
 
 
-VERSION = "1.4.5"
+VERSION = "1.4.6"
 BRAND = "Damda"
 NAME = "Damda Weather"
 NAME_KOR = "담다날씨"
@@ -146,7 +146,7 @@ ICON_SKY_MID = {
     "구름많고 눈": "mdi:weather-snowy",
     "구름많고 비/눈": "mdi:weather-snowy-rainy",
     "구름많고 소나기": "mdi:weather-pouring",
-    "흐리고": "mdi:weather-partly-cloudy",
+    "흐림": "mdi:weather-partly-cloudy",
     "흐리고 비": "mdi:weather-rainy",
     "흐리고 눈": "mdi:weather-snowy",
     "흐리고 비/눈": "mdi:weather-snowy-rainy",
@@ -159,7 +159,7 @@ ICON_SKY_MID_VALUE = {
     "구름많고 눈": 4,
     "구름많고 비/눈": 5,
     "구름많고 소나기": 6,
-    "흐리고": 2.5,
+    "흐림": 2.5,
     "흐리고 비": 3.5,
     "흐리고 눈": 4.5,
     "흐리고 비/눈": 5.5,
