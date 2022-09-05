@@ -17,7 +17,7 @@ from homeassistant.const import (
 )
 
 
-VERSION = "1.4.6"
+VERSION = "1.4.7"
 BRAND = "Damda"
 NAME = "Damda Weather"
 NAME_KOR = "담다날씨"
@@ -233,7 +233,7 @@ def icon_rainfall(value):
     1mm < value : mdi:xxx
 
     """
-    if value == "30~50mm":
+    if value in ["30~50mm", "30.0~50.0"]:
         return "mdi:weather-rainy"
     elif value in ["50mm 이상", "50mm이상"]:
         return "mdi:weather-pouring"

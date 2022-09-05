@@ -339,6 +339,12 @@ def convKMAitems(target, c, code, value, unit, device_icon):
                     value = float(value)
                 else:
                     unit = ""
+            elif "mm " in value or "cm " in value:
+                value = value[0 : len(value) - 3]
+                if isnumber(value):
+                    value = float(value)
+                else:
+                    unit = ""
             else:
                 unit = None
     except Exception as ex:
@@ -694,6 +700,8 @@ class DamdaWeatherAPI:
                             else 0
                         )
                     )
+                    if value in ["30.0~50.0", "50.0mm "]:
+                        value = 50
                     self.weather[W_FCST_D][forecast_d_time][entity] = ov + value
                 elif entity == W_POP:
                     ov = d_data.get(entity, 0)
