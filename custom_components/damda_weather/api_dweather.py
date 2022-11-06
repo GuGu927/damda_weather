@@ -16,7 +16,6 @@ import xmltodict
 import time
 
 from types import FunctionType
-from zoneinfo import ZoneInfo
 from datetime import datetime, timedelta, timezone
 
 from .const import (
@@ -95,7 +94,7 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-ZONE = ZoneInfo("Asia/Seoul")
+ZONE = timezone(timedelta(hours=9))
 
 DEBUG = False
 DATE_NAME = {"0": "오늘", "1": "내일", "2": "모레"}
@@ -869,6 +868,8 @@ class DamdaWeatherAPI:
 
     def parse_kma(self, target, result, url):
         """Parse KMA data."""
+        utc = datetime.now(timezone.utc)
+        kst = utc.astimezone(ZONE)
         data = {}
         r_res = result.get("response", {})
         r_header = r_res.get("header", {})
@@ -913,16 +914,18 @@ class DamdaWeatherAPI:
                     base_dt, cast_dt = base_date + base_time, cast_date + cast_time
                     dt = datetime.strptime(base_dt, "%Y%m%d%H%M").replace(tzinfo=ZONE)
                     fmt = "%Y-%m-%d %H:%M"
-                    init_time = datetime(2000, 1, 1).strftime(fmt)
+                    init_time = datetime(2000, 1, 1, tzinfo=ZONE)
                     last_update = self.last_update.get(target, init_time)
-                    dt_last = (
-                        datetime.fromisoformat(last_update).replace(tzinfo=ZONE)
-                        if isinstance(last_update, str)
-                        else datetime(2000, 1, 1)
-                    )
+                    dt_last = None
+                    if isinstance(last_update, str):
+                        dt_last = datetime.fromisoformat(last_update).replace(
+                            tzinfo=ZONE
+                        )
+                    else:
+                        dt_last = init_time
                     if dt > dt_last:
                         self.last_update[target] = dt.isoformat()
-                    now_dt = datetime.now(timezone.utc).astimezone(ZONE)
+                    now_dt = kst
                     now = now_dt.strftime("%Y%m%d")
                     if dt.replace(hour=0, minute=0) < now_dt.replace(hour=0, minute=0):
                         base_date = now

@@ -47,6 +47,7 @@ Damda Weather Component
 | v1.4.5 | 2022.06.11 | interval 및 오류 수정                                                                                                                   |
 | v1.4.6 | 2022.06.22 | 아이콘 표시 오류 수정                                                                                                                   |
 | v1.4.7 | 2022.09.05 | 강수량 표기 오류 수정                                                                                                                   |
+| v1.4.8 | 2022.11.06 | datetime 오류 수정                                                                                                                   |
 
 <br/>
 
@@ -150,5 +151,5 @@ cards:
     number_of_forecasts: "8"
 ```
 
-[version-shield]: https://img.shields.io/badge/version-v1.4.7-orange.svg
+[version-shield]: https://img.shields.io/badge/version-v1.4.8-orange.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg
