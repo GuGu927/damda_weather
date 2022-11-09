@@ -78,7 +78,7 @@ class DWeatherMain(DWeatherDevice, WeatherEntity):
         return self.api.get_state(self.unique_id)
 
     @property
-    def temperature(self):
+    def native_temperature(self):
         """Return the temperature."""
         try:
             return float(self.status.get(W_TEMP))
@@ -86,7 +86,7 @@ class DWeatherMain(DWeatherDevice, WeatherEntity):
             return
 
     @property
-    def temperature_unit(self):
+    def native_temperature_unit(self):
         """Return the unit of measurement."""
         return TEMP_CELSIUS
 
@@ -99,7 +99,7 @@ class DWeatherMain(DWeatherDevice, WeatherEntity):
             return
 
     @property
-    def wind_speed(self):
+    def native_wind_speed(self):
         """Return the wind speed."""
         try:
             return float(self.status.get(W_WS))
