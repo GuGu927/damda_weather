@@ -1343,6 +1343,9 @@ class DamdaWeatherAPI:
             )
 
         if len(self.result) == 0:
+            self.result = self.get_data("weather_data", self.result)
+        if len(self.result) == 0:
+            self.result = self.get_data("weather_data", self.result)
             return
 
         state_weather = {W_COND: convKMAcondition(self.weather), W_FCST: []}
@@ -1439,6 +1442,7 @@ class DamdaWeatherAPI:
                 name_hi,
             )
 
+        self.result = self.set_data("weather_data", self.result)
         for unique_id, entity in self.result.items():
             target_domain = entity.get(DEVICE_DOMAIN)
             if not target_domain:
