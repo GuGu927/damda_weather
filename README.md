@@ -50,6 +50,7 @@ Damda Weather Component
 | v1.4.8 | 2022.11.06 | datetime 오류 수정                                                                                                                    |
 | v1.4.9 | 2022.11.09 | native 관련 대응                                                                                                                   |
 | v1.5.0 | 2022.12.02 | 오픈API 오류 대비를 위한 임시방편 적용                                                                                                |
+| v1.5.1 | 2023.04.11 | deprecated 대응                                                                                                                      |
 
 <br/>
 
