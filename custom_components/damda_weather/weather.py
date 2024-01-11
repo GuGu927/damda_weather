@@ -1,7 +1,13 @@
 """Damda Weather's weather entity."""
 from datetime import timedelta
+from typing import cast
 from homeassistant.core import callback
-from homeassistant.components.weather import WeatherEntity
+from homeassistant.components.weather import (
+    WeatherEntity,
+    WeatherEntityFeature,
+    Forecast,
+    ATTR_FORECAST_TEMP,
+)
 
 from .const import (
     WEATHER_DOMAIN,
@@ -10,6 +16,8 @@ from .const import (
     TEMP_CELSIUS,
     W_COND,
     W_FCST,
+    W_FCST_D,
+    W_FCST_H,
     W_HUMI,
     W_O3,
     W_TEMP,
@@ -72,6 +80,17 @@ class DWeatherMain(DWeatherDevice, WeatherEntity):
 
     TYPE = WEATHER_DOMAIN
 
+    def __init__(self, device, gateway):
+        """Set up thermostat device."""
+        super().__init__(device, gateway)
+        self._features = WeatherEntityFeature.FORECAST_DAILY
+        self._features |= WeatherEntityFeature.FORECAST_HOURLY
+
+    @property
+    def supported_features(self):
+        """Return the list of supported features."""
+        return self._features
+
     @property
     def status(self):
         """Return status of weather."""
@@ -130,14 +149,22 @@ class DWeatherMain(DWeatherDevice, WeatherEntity):
         return f"담다날씨 [{self.api.location}] - Weather forecast from KMA and AIRKOREA."
 
     @property
-    def forecast(self):
+    def forecast(self) -> list[Forecast] | None:
         """Return the forecast."""
-        return self.status.get(W_FCST, {})
+        return self.status.get(W_FCST_H, {})
 
     @property
     def should_poll(self) -> bool:
         """Verify poll."""
-        return "hourly" in self.unique_id
+        return True
+
+    async def async_forecast_daily(self) -> list[Forecast] | None:
+        """Return the daily forecast in native units."""
+        return self.status.get(W_FCST_D, {})
+
+    async def async_forecast_hourly(self) -> list[Forecast] | None:
+        """Return the hourly forecast in native units."""
+        return self.status.get(W_FCST_H, {})
 
     async def async_update(self):
         """Update current conditions."""

@@ -3,12 +3,16 @@
   "name": "Damda Weather",
   "config_flow": true,
   "documentation": "https://cafe.naver.com/koreassistant",
-  "requirements": ["xmltodict"],
+  "requirements": [
+    "xmltodict"
+  ],
   "ssdp": [],
   "zeroconf": [],
   "homekit": {},
   "dependencies": [],
-  "codeowners": ["@GuGu927"],
+  "codeowners": [
+    "@GuGu927"
+  ],
   "iot_class": "cloud_polling",
-  "version": "1.5.0"
+  "version": "1.5.2"
 }

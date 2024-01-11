@@ -51,6 +51,7 @@ Damda Weather Component
 | v1.4.9 | 2022.11.09 | native 관련 대응                                                                                                                   |
 | v1.5.0 | 2022.12.02 | 오픈API 오류 대비를 위한 임시방편 적용                                                                                                |
 | v1.5.1 | 2023.04.11 | deprecated 대응                                                                                                                      |
+| v1.5.2 | 2024.01.11 | deprecated 대응                                                                                                                      |
 
 <br/>
 
@@ -154,5 +155,5 @@ cards:
     number_of_forecasts: "8"
 ```
 
-[version-shield]: https://img.shields.io/badge/version-v1.4.9-orange.svg
+[version-shield]: https://img.shields.io/badge/version-v1.5.2-orange.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg

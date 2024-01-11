@@ -1348,36 +1348,32 @@ class DamdaWeatherAPI:
             self.result = self.get_data("weather_data", self.result)
             return
 
-        state_weather = {W_COND: convKMAcondition(self.weather), W_FCST: []}
-        state_weather_daily = {W_COND: convKMAcondition(self.weather), W_FCST: []}
+        state_weather = {
+            W_COND: convKMAcondition(self.weather),
+            W_FCST_D: [],
+            W_FCST_H: [],
+        }
         for k, v in self.weather.items():
             if k in W_LIST:
                 state_weather[k] = v
-                state_weather_daily[k] = v
-            if k == W_FCST_H:
+            if k in [W_FCST_H, W_FCST_D]:
                 for dt, ft in v.items():
                     if len(ft) > 0:
                         ft.update({W_DT: dt, W_COND: convKMAcondition(ft)})
                         ft.update({W_PCP: ft.get(W_PCP, 0) + ft.get("snow", 0)})
-                        state_weather[W_FCST].append(ft)
-            elif k == W_FCST_D:
-                for dt, ft in v.items():
-                    if len(ft) > 0:
-                        ft.update({W_DT: dt, W_COND: convKMAcondition(ft)})
-                        ft.update({W_PCP: ft.get(W_PCP, 0) + ft.get("snow", 0)})
-                        state_weather_daily[W_FCST].append(ft)
-        if len(state_weather[W_FCST]) > 0:
-            state_weather[W_FCST] = sorted(
-                state_weather[W_FCST], key=lambda dt: dt[W_DT]
+                        state_weather[k].append(ft)
+        if len(state_weather[W_FCST_D]) > 0:
+            state_weather[W_FCST_D] = sorted(
+                state_weather[W_FCST_D], key=lambda dt: dt[W_DT]
             )
-        if len(state_weather_daily[W_FCST]) > 0:
-            state_weather_daily[W_FCST] = sorted(
-                state_weather_daily[W_FCST], key=lambda dt: dt[W_DT]
+        if len(state_weather[W_FCST_H]) > 0:
+            state_weather[W_FCST_H] = sorted(
+                state_weather[W_FCST_H], key=lambda dt: dt[W_DT]
             )
 
         attr_weather = {CAST_TYPE: "초단기실황"}
-        unique_weather = f"damda_weather{self.count}_hourly"
-        name_weather = f"담다날씨 {self.location} 시간"
+        unique_weather = f"damda_weather{self.count}"
+        name_weather = f"담다날씨 {self.location}"
         self.result[unique_weather] = self.make_entity(
             attr_weather,
             None,
@@ -1390,19 +1386,19 @@ class DamdaWeatherAPI:
             name_weather,
         )
 
-        unique_weather2 = f"damda_weather{self.count}"
-        name_weather2 = f"담다날씨 {self.location}"
-        self.result[unique_weather2] = self.make_entity(
-            attr_weather,
-            None,
-            None,
-            WEATHER_DOMAIN,
-            state_weather_daily,
-            None,
-            unique_weather2,
-            unique_weather2,
-            name_weather2,
-        )
+        # unique_weather2 = f"damda_weather{self.count}"
+        # name_weather2 = f"담다날씨 {self.location}"
+        # self.result[unique_weather2] = self.make_entity(
+        #     attr_weather,
+        #     None,
+        #     None,
+        #     WEATHER_DOMAIN,
+        #     state_weather_daily,
+        #     None,
+        #     unique_weather2,
+        #     unique_weather2,
+        #     name_weather2,
+        # )
 
         attr_apt = {CAST_TYPE: "초단기실황"}
         unique_apt = f"dw{self.count}_realtime_apparent_temperature"
