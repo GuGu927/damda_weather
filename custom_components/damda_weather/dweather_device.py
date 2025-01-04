@@ -71,7 +71,6 @@ class DWeatherBase:
             "model": self.api.model,
             "name": f"{self.api.location} {self.cast_type}",
             "sw_version": self.api.version,
-            "via_device": (DOMAIN, self.api.location),
         }
 
 

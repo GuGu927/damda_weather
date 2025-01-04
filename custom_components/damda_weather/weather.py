@@ -13,7 +13,7 @@ from .const import (
     WEATHER_DOMAIN,
     DEVICE_UNIQUE,
     NAME,
-    TEMP_CELSIUS,
+    UnitOfTemperature,
     W_COND,
     W_FCST,
     W_FCST_D,
@@ -107,7 +107,7 @@ class DWeatherMain(DWeatherDevice, WeatherEntity):
     @property
     def native_temperature_unit(self):
         """Return the unit of measurement."""
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
 
     @property
     def humidity(self):

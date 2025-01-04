@@ -6,18 +6,17 @@ from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.weather import DOMAIN as WEATHER_DOMAIN
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import (
-    # LENGTH_METERS,
-    TEMP_CELSIUS,
-    SPEED_METERS_PER_SECOND,
+    Platform,
+    UnitOfTemperature,
+    UnitOfSpeed,
+    UnitOfLength,
     PERCENTAGE,
-    LENGTH_CENTIMETERS,
-    LENGTH_MILLIMETERS,
     CONCENTRATION_PARTS_PER_MILLION,
     CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
 )
 
 
-VERSION = "1.5.2"
+VERSION = "1.5.3"
 BRAND = "Damda"
 NAME = "Damda Weather"
 NAME_KOR = "담다날씨"
@@ -25,7 +24,11 @@ DOMAIN = "damda_weather"
 MODEL = "damda_weather"
 MANUFACTURER = "data.go.kr"
 API_NAME = "dw_api"
-PLATFORMS = [SENSOR_DOMAIN, WEATHER_DOMAIN]
+
+PLATFORMS: list[Platform] = [
+    Platform.SENSOR,
+    Platform.WEATHER,
+]
 
 DEVICE_DOMAIN = "domain"
 DEVICE_ENTITY = "entity"
@@ -263,14 +266,14 @@ def icon_snowfall(value):
 
 taMin = [
     "최저기온",
-    TEMP_CELSIUS,
+    UnitOfTemperature.CELSIUS,
     SENSOR_DOMAIN,
     "mdi:thermometer-chevron-down",
     SensorDeviceClass.TEMPERATURE,
 ]
 taMax = [
     "최고기온",
-    TEMP_CELSIUS,
+    UnitOfTemperature.CELSIUS,
     SENSOR_DOMAIN,
     "mdi:thermometer-chevron-up",
     SensorDeviceClass.TEMPERATURE,
@@ -303,7 +306,7 @@ CATEGORY_CODE = {
     "PCP": [
         "precipitation",
         "강수량",
-        LENGTH_MILLIMETERS,
+        UnitOfLength.MILLIMETERS,
         SENSOR_DOMAIN,
         icon_rainfall,
         None,
@@ -316,12 +319,12 @@ CATEGORY_CODE = {
         "mdi:water-percent",
         SensorDeviceClass.HUMIDITY,
     ],
-    "SNO": ["snow", "적설", LENGTH_CENTIMETERS, SENSOR_DOMAIN, icon_snowfall, None],
+    "SNO": ["snow", "적설", UnitOfLength.CENTIMETERS, SENSOR_DOMAIN, icon_snowfall, None],
     "SKY": ["sky", "하늘상태", CODE_SKY, SENSOR_DOMAIN, ICON_SKY, None],
     "TMP": [
         "temperature",
         "기온",
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         SENSOR_DOMAIN,
         "mdi:thermometer",
         SensorDeviceClass.TEMPERATURE,
@@ -329,7 +332,7 @@ CATEGORY_CODE = {
     "TMN": [
         "temperature_min",
         "최저기온",
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         SENSOR_DOMAIN,
         "mdi:thermometer-chevron-down",
         SensorDeviceClass.TEMPERATURE,
@@ -337,19 +340,19 @@ CATEGORY_CODE = {
     "TMX": [
         "temperature_max",
         "최고기온",
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         SENSOR_DOMAIN,
         "mdi:thermometer-chevron-up",
         SensorDeviceClass.TEMPERATURE,
     ],
-    # "UUU": ["wind_ew", "풍속(동서)", SPEED_METERS_PER_SECOND],
-    # "VVV": ["wind_sn", "풍속(남북)", SPEED_METERS_PER_SECOND],
-    # "WAV": ["wave", "파고", LENGTH_METERS, SENSOR_DOMAIN, "mdi:waves", None],
+    # "UUU": ["wind_ew", "풍속(동서)", UnitOfSpeed.METERS_PER_SECOND],
+    # "VVV": ["wind_sn", "풍속(남북)", UnitOfSpeed.METERS_PER_SECOND],
+    # "WAV": ["wave", "파고", UnitOfLength.METERS, SENSOR_DOMAIN, "mdi:waves", None],
     "VEC": ["wind_bearing", "풍향", conv_wind, SENSOR_DOMAIN, "mdi:weather-windy", None],
     "WSD": [
         "wind_speed",
         "풍속",
-        SPEED_METERS_PER_SECOND,
+        UnitOfSpeed.METERS_PER_SECOND,
         SENSOR_DOMAIN,
         "mdi:weather-windy",
         None,
@@ -357,7 +360,7 @@ CATEGORY_CODE = {
     "T1H": [
         "temperature",
         "기온",
-        TEMP_CELSIUS,
+        UnitOfTemperature.CELSIUS,
         SENSOR_DOMAIN,
         "mdi:thermometer",
         SensorDeviceClass.TEMPERATURE,
@@ -365,7 +368,7 @@ CATEGORY_CODE = {
     "RN1": [
         "precipitation",
         "강수량",
-        LENGTH_MILLIMETERS,
+        UnitOfLength.MILLIMETERS,
         SENSOR_DOMAIN,
         icon_rainfall,
         None,
