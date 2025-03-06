@@ -16,7 +16,7 @@ from homeassistant.const import (
 )
 
 
-VERSION = "1.5.3"
+VERSION = "1.5.4"
 BRAND = "Damda"
 NAME = "Damda Weather"
 NAME_KOR = "담다날씨"
@@ -258,7 +258,7 @@ def icon_snowfall(value):
     """
     if value in ["5 cm 이상", "5cm이상"]:
         return "mdi:weather-snowy-heavy"
-    elif str(value) in ["없음", "적설없음", "0.0", "0", "1 cm 미만", "1cm미만"]:
+    elif str(value) in ["없음", "적설없음", "0.0", "0", "1 cm 미만", "1cm미만", "0.5cm"]:
         return "mdi:close-circle"
     else:
         return "mdi:weather-partly-snowy"

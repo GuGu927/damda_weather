@@ -300,6 +300,7 @@ def convKMAitems(target, c, code, value, unit, device_icon):
     if code in ["PCP", "RN1", "SNO"] and value in [
         "없음",
         "강수없음",
+        "0.5cm",
         "1mm 미만",
         "1.0mm 미만",
         "1mm미만",

@@ -53,6 +53,7 @@ Damda Weather Component
 | v1.5.1 | 2023.04.11 | deprecated 대응                                                                                                                         |
 | v1.5.2 | 2024.01.11 | deprecated 대응                                                                                                                         |
 | v1.5.3 | 2025.01.04 | deprecated 대응                                                                                                                         |
+| v1.5.4 | 2025.03.06 | 적설량 단위 대응                                                                                                                        |
 
 <br/>
 
