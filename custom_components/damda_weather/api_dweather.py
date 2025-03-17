@@ -702,6 +702,8 @@ class DamdaWeatherAPI:
                     )
                     if value in ["30.0~50.0", "50.0mm "]:
                         value = 50
+                    elif value == "0.5cm":
+                        value = 5
                     self.weather[W_FCST_D][forecast_d_time][entity] = ov + value
                 elif entity == W_POP:
                     ov = d_data.get(entity, 0)
