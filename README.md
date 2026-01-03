@@ -54,12 +54,13 @@ Damda Weather Component
 | v1.5.2 | 2024.01.11 | deprecated 대응                                                                                                                         |
 | v1.5.3 | 2025.01.04 | deprecated 대응                                                                                                                         |
 | v1.5.4 | 2025.03.06 | 적설량 단위 대응                                                                                                                        |
+| v1.5.5 | 2026.01.03 | deprecated 대응, API 오류 시 공공데이터에서 새롭게 변경신청 해야 정상작동합니다.                                                          |
 
 <br/>
 
 ## 준비물
 
-- HomeAssistant `최신버전`(**2021.12.0 이상**)
+- HomeAssistant `최신버전`(**205.4.0 이상**)
 - HomeAssistant OS, Core, Container 등 아무런 상관이 없습니다.
 
 <br/>

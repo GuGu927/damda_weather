@@ -1,4 +1,5 @@
 """The Damda Weather integration."""
+
 from __future__ import annotations
 
 from homeassistant.const import EVENT_HOMEASSISTANT_STARTED
@@ -6,7 +7,7 @@ from .api_dweather import DamdaWeatherAPI as API
 
 import logging
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 
 from .const import DOMAIN, PLATFORMS, NAME, BRAND, API_NAME
 
@@ -34,10 +35,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     api = API(hass, entry, len(hass.data[DOMAIN][API_NAME]) + 1)
     hass.data[DOMAIN][API_NAME][entry.entry_id] = api
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    @callback
+    def _schedule_initial_update(_event=None) -> None:
+        """최초 업데이트를 스케줄링."""
+        hass.async_create_task(api.update(True))
+
     if hass.is_running:
-        hass.async_add_job(api.update, True)
+        _schedule_initial_update()
     else:
-        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STARTED, api.update)
+        unsub = hass.bus.async_listen_once(
+            EVENT_HOMEASSISTANT_STARTED, _schedule_initial_update
+        )
+        entry.async_on_unload(unsub)
     return True
 
 
