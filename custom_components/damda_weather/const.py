@@ -16,7 +16,7 @@ from homeassistant.const import (
 )
 
 
-VERSION = "1.5.5"
+VERSION = "1.5.6"
 BRAND = "Damda"
 NAME = "Damda Weather"
 NAME_KOR = "담다날씨"
@@ -88,9 +88,9 @@ W_PTY = "precipitation_type"
 W_POP = "precipitation_probability"
 W_LIST = [W_COND, W_HUMI, W_TEMP, W_O3, W_WD, W_WS, W_FCST, W_PCP, W_PTY, W_POP, W_SKY]
 
-KMA_URL = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/{}?serviceKey={}&nx={}&ny={}&base_date={}&base_time={}&numOfRows=1000&pageNo=1&dataType=json"
-KMA_MID_URL = "http://apis.data.go.kr/1360000/MidFcstInfoService/{}?serviceKey={}&regId={}&tmFc={}{}&numOfRows=1000&pageNo=1&dataType=json"
-AIRKOREA_URL = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?stationName={}&dataTerm=daily&pageNo=1&numOfRows=100&returnType=json&serviceKey={}&ver=1.0"
+KMA_URL = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/{}?serviceKey={}&nx={}&ny={}&base_date={}&base_time={}&numOfRows=1000&pageNo=1&dataType=json"
+KMA_MID_URL = "https://apis.data.go.kr/1360000/MidFcstInfoService/{}?serviceKey={}&regId={}&tmFc={}{}&numOfRows=1000&pageNo=1&dataType=json"
+AIRKOREA_URL = "https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?stationName={}&dataTerm=daily&pageNo=1&numOfRows=100&returnType=json&serviceKey={}&ver=1.0"
 CAST_R = "getUltraSrtNcst"
 CAST_F = "getUltraSrtFcst"
 CAST_V = "getVilageFcst"
