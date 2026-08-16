@@ -3,7 +3,7 @@
 Damda Weather Component
 
 ![HACS][hacs-shield]
-![Version v1.4][version-shield]
+![Version v1.5.7][version-shield]
 
 문의 : 네이버 [HomeAssistant카페](https://cafe.naver.com/koreassistant)
 
@@ -56,6 +56,7 @@ Damda Weather Component
 | v1.5.4 | 2025.03.06 | 적설량 단위 대응                                                                                                                        |
 | v1.5.5 | 2026.01.03 | deprecated 대응, API 오류 시 공공데이터에서 새롭게 변경신청 해야 정상작동합니다.                                                          |
 | v1.5.6 | 2026.08.04 | HTTP -> HTTPS 변경                                                                                                                      |
+| v1.5.7 | 2026.08.16 | 시간별 강수량 범위값 처리 및 weather 갱신 오류 수정                                                                                     |
 
 <br/>
 
@@ -159,5 +160,5 @@ cards:
     number_of_forecasts: "8"
 ```
 
-[version-shield]: https://img.shields.io/badge/version-v1.5.3-orange.svg
+[version-shield]: https://img.shields.io/badge/version-v1.5.7-orange.svg
 [hacs-shield]: https://img.shields.io/badge/HACS-Custom-red.svg

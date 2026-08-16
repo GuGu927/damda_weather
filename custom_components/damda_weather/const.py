@@ -16,7 +16,7 @@ from homeassistant.const import (
 )
 
 
-VERSION = "1.5.6"
+VERSION = "1.5.7"
 BRAND = "Damda"
 NAME = "Damda Weather"
 NAME_KOR = "담다날씨"

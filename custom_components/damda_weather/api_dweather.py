@@ -288,6 +288,28 @@ def convKMAcondition(table):
     return CONDITION_MAP.get(condition, condition)
 
 
+def convKMAprecipitation(value):
+    """Convert KMA precipitation values to millimeters for weather forecasts."""
+    if value is None or value in ["", "없음", "강수없음"]:
+        return 0.0
+    if isinstance(value, (int, float)):
+        return float(value)
+
+    text = str(value).strip().replace(" ", "").replace("mm", "")
+    if text.endswith("미만"):
+        return 0.0
+    if text.endswith("이상"):
+        text = text[:-2]
+    if "~" in text:
+        text = text.rsplit("~", 1)[-1]
+
+    try:
+        return float(text)
+    except (TypeError, ValueError):
+        log(2, f"Parse weather precipitation error > {value}")
+        return 0.0
+
+
 def convKMAitems(target, c, code, value, unit, device_icon):
     """Convert value, unit, device_icon."""
     try:
@@ -1363,7 +1385,7 @@ class DamdaWeatherAPI:
                 for dt, ft in v.items():
                     if len(ft) > 0:
                         ft.update({W_DT: dt, W_COND: convKMAcondition(ft)})
-                        ft.update({W_PCP: ft.get(W_PCP, 0) + ft.get("snow", 0)})
+                        ft.update({W_PCP: convKMAprecipitation(ft.get(W_PCP, 0))})
                         state_weather[k].append(ft)
         if len(state_weather[W_FCST_D]) > 0:
             state_weather[W_FCST_D] = sorted(
