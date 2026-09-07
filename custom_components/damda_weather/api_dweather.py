@@ -15,6 +15,18 @@ import json
 import xmltodict
 import time
 
+REQUEST_TIMEOUT = (5, 20)
+
+
+def fetch_weather_data(url):
+    """Fetch and decode a response in the executor, releasing its connection."""
+    with requests.get(url, timeout=REQUEST_TIMEOUT) as response:
+        response.raise_for_status()
+        try:
+            return response.json()
+        except ValueError:
+            return xmltodict.parse(response.content)
+
 from types import FunctionType
 from datetime import datetime, timedelta, timezone
 
@@ -1260,14 +1272,9 @@ class DamdaWeatherAPI:
         kst = utc.astimezone(ZONE)
         now = kst
 
-        async def getDataFromUrl(url):
+        async def parseDataFromUrl(url):
             """Get data."""
-            response = await self.hass.async_add_executor_job(requests.get, url)
-            try:
-                r_parse = response.json()
-            except Exception:
-                r_xml = response.content
-                r_parse = json.loads(json.dumps(xmltodict.parse(r_xml)))
+            r_parse = await self.hass.async_add_executor_job(fetch_weather_data, url)
             open_api_response = r_parse.get("OpenAPI_ServiceResponse")
             if open_api_response:
                 msg_header = open_api_response.get("cmmMsgHeader", {})
@@ -1276,7 +1283,7 @@ class DamdaWeatherAPI:
                 reason_code = msg_header.get("returnReasonCode", "-")
                 self.log(
                     0,
-                    f"OpenAPI_ServiceResponse > {err_msg} > {auth_msg} > {reason_code} > {url}",
+                    f"OpenAPI_ServiceResponse > {err_msg} > {auth_msg} > {reason_code}",
                 )
                 return
             r_data = self.parse(url, r_parse)
@@ -1284,9 +1291,17 @@ class DamdaWeatherAPI:
                 data.setdefault(unique_id, {})
                 data[unique_id] = v.copy()
 
+        async def getDataFromUrl(url, target_name):
+            """Isolate request failures so other forecasts can still update."""
+            try:
+                await parseDataFromUrl(url)
+            except Exception as ex:
+                # Request exceptions can include the URL and its service key.
+                self.log(3, f"Weather request failed > {target_name} > {type(ex).__name__}")
+
         try:
-            task_list = []
             for target_name in target_list:
+                task_list = []
                 cast_url = self.getCastURL(target_name)
                 for t in self.weather[W_FCST_D].copy().keys():
                     if isinstance(t, str):
@@ -1299,7 +1314,9 @@ class DamdaWeatherAPI:
                         if dt < now and now - dt >= timedelta(hours=1):
                             self.weather[W_FCST_H].pop(t)
                 for url in cast_url:
-                    task_list.append(self.hass.async_create_task(getDataFromUrl(url)))
+                    task_list.append(
+                        self.hass.async_create_task(getDataFromUrl(url, target_name))
+                    )
                 for t in task_list:
                     await t
                 if len(data) > 0:
